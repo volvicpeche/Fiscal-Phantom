@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiscal Phantom: The Offshore Tycoon</title>
     <meta name="description" content="Un jeu incremental satirique sur l'évasion fiscale et la gestion de crise.">
     <style>
-        /* --- VARIABLES GLOBALES --- */
+        /* --- VARIABLES GLOBALES -- - */
         :root {
             --bg-color: #1a1a1d;
             --panel-bg: #2d2d30;
@@ -39,7 +40,7 @@
         header {
             background-color: #000;
             padding: 10px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             z-index: 10;
             position: relative;
         }
@@ -105,15 +106,20 @@
             display: flex;
             align-items: center;
         }
-        
+
         .news-content {
             display: inline-block;
             animation: scroll-left 30s linear infinite;
         }
 
         @keyframes scroll-left {
-            0% { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
+            0% {
+                transform: translateX(100vw);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         /* --- MAIN LAYOUT --- */
@@ -141,7 +147,7 @@
             border-radius: 50%;
             background-color: #333;
             border: 5px solid #555;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             cursor: pointer;
             transition: transform 0.1s;
             display: flex;
@@ -169,8 +175,8 @@
         }
 
         .shredder-stats {
-            font-size: 0.7rem; 
-            color: #aaa; 
+            font-size: 0.7rem;
+            color: #aaa;
             margin-top: 5px;
         }
 
@@ -180,7 +186,8 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-top: 20px; /* Espace fixe sous le bouton principal */
+            margin-top: 20px;
+            /* Espace fixe sous le bouton principal */
             margin-bottom: 20px;
             flex-wrap: wrap;
             z-index: 60;
@@ -200,7 +207,7 @@
             justify-content: center;
             overflow: hidden;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .skill-btn:hover:not(.on-cooldown) {
@@ -252,9 +259,17 @@
         }
 
         @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         /* --- RIGHT PANEL: SHOP --- */
@@ -293,6 +308,7 @@
             display: none;
             color: var(--tech-color);
         }
+
         #research-tab-btn.active {
             border-bottom-color: var(--tech-color);
         }
@@ -337,9 +353,11 @@
             border: 1px solid var(--bribe-color);
             background: linear-gradient(45deg, #3a3a3d, #2a1a1d);
         }
+
         .shop-item.bribe-item:hover {
             background: linear-gradient(45deg, #454548, #3a2a2d);
         }
+
         .shop-item.bribe-item h4 {
             color: var(--bribe-color);
         }
@@ -378,8 +396,15 @@
         }
 
         @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-50px); opacity: 0; }
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
         }
 
         /* --- TOAST NOTIFICATION (Events) --- */
@@ -392,7 +417,7 @@
             border-left: 5px solid var(--accent);
             padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
             display: none;
             flex-direction: column;
             width: 80%;
@@ -400,24 +425,54 @@
             z-index: 50;
             animation: slideUp 0.5s ease-out;
         }
-        
-        .event-toast h4 { margin: 0 0 5px 0; color: white; }
-        .event-toast p { margin: 0; font-size: 0.9rem; color: #ccc; }
-        .event-toast.bad { border-left-color: var(--risk-high); }
-        .event-toast.good { border-left-color: var(--money-color); }
-        .event-toast.tech { border-left-color: var(--tech-color); }
-        .event-toast.bribe { border-left-color: var(--bribe-color); }
+
+        .event-toast h4 {
+            margin: 0 0 5px 0;
+            color: white;
+        }
+
+        .event-toast p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .event-toast.bad {
+            border-left-color: var(--risk-high);
+        }
+
+        .event-toast.good {
+            border-left-color: var(--money-color);
+        }
+
+        .event-toast.tech {
+            border-left-color: var(--tech-color);
+        }
+
+        .event-toast.bribe {
+            border-left-color: var(--bribe-color);
+        }
 
         @keyframes slideUp {
-            from { transform: translate(-50%, 100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
         }
 
         /* --- MODAL --- */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
             display: none;
             justify-content: center;
             align-items: center;
@@ -434,8 +489,15 @@
             box-shadow: 0 0 50px rgba(244, 67, 54, 0.5);
         }
 
-        .modal h2 { color: var(--risk-high); margin-top: 0; }
-        .modal p { margin-bottom: 20px; }
+        .modal h2 {
+            color: var(--risk-high);
+            margin-top: 0;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+        }
+
         .modal button {
             background-color: var(--risk-high);
             color: white;
@@ -445,19 +507,24 @@
             cursor: pointer;
             border-radius: 5px;
         }
-        .modal button:hover { background-color: #d32f2f; }
+
+        .modal button:hover {
+            background-color: #d32f2f;
+        }
 
         /* Style spécifique Game Over */
         #gameOverModal .modal {
             border-color: #000;
             background-color: #222;
         }
+
         #gameOverModal h2 {
             color: #fff;
             text-transform: uppercase;
             font-size: 2rem;
             letter-spacing: 2px;
         }
+
         #gameOverModal button {
             background-color: #555;
             border: 1px solid #777;
@@ -468,9 +535,9 @@
             color: var(--risk-high);
             font-weight: bold;
         }
-
     </style>
 </head>
+
 <body>
 
     <!-- Header -->
@@ -483,10 +550,11 @@
             <div style="text-align: right;">
                 <div style="font-size: 0.8rem; color: #aaa;">Défense Légale: <span id="defenseLevel">1</span>x</div>
                 <div class="strikes-display">Casier Judiciaire: <span id="strikeCount">0</span>/5</div>
-                <div style="font-size: 0.8rem; color: var(--tech-color);">Puissance Clic: <span id="clickPowerDisplay">1</span>x</div>
+                <div style="font-size: 0.8rem; color: var(--tech-color);">Puissance Clic: <span
+                        id="clickPowerDisplay">1</span>x</div>
             </div>
         </div>
-        
+
         <!-- Risk Bar -->
         <div class="risk-container">
             <div class="risk-bar" id="riskBar"></div>
@@ -496,16 +564,17 @@
 
     <!-- News Ticker -->
     <div class="news-ticker">
-        <div class="news-content" id="newsTickerText">Bienvenue dans le monde de la finance "créative"... Attention aux inspecteurs...</div>
+        <div class="news-content" id="newsTickerText">Bienvenue dans le monde de la finance "créative"... Attention aux
+            inspecteurs...</div>
     </div>
 
     <!-- Game Area -->
     <div class="game-container">
-        
+
         <!-- Zone Active (Gauche) -->
         <div class="clicker-zone">
             <div class="audit-alert" id="auditAlert">⚠️ AUDIT IMMINENT ⚠️</div>
-            
+
             <button class="shredder-btn" id="shredderBtn">
                 <div class="shredder-icon">📄🗑️</div>
                 <div class="shredder-label">Blanchir & Cacher</div>
@@ -544,7 +613,8 @@
                     <div class="item-info">
                         <h4>Avocat Véreux</h4>
                         <div class="item-cost" id="lawyer-cost">500 $</div>
-                        <div class="item-stats">Ralentit la jauge de risque (Actuel: /<span id="lawyer-stat">1</span>)</div>
+                        <div class="item-stats">Ralentit la jauge de risque (Actuel: /<span id="lawyer-stat">1</span>)
+                        </div>
                     </div>
                 </div>
 
@@ -554,7 +624,8 @@
                         <h4>🤝 Pot-de-vin Express</h4>
                         <div class="item-cost" id="bribe-cost">??? $</div>
                         <div class="item-stats">Réduit instantanément le risque de <strong>15%</strong>.</div>
-                        <div style="font-size: 0.7rem; color: #888; font-style: italic;">"J'ai cru voir un billet tomber..."</div>
+                        <div style="font-size: 0.7rem; color: #888; font-style: italic;">"J'ai cru voir un billet
+                            tomber..."</div>
                     </div>
                 </div>
             </div>
@@ -588,108 +659,109 @@
             <p>Après <strong>5 redressements fiscaux</strong> majeurs, la justice a tranché.</p>
             <p>Vos biens sont saisis, votre empire est démantelé, et vous finissez derrière les barreaux.</p>
             <br>
-            <p style="font-style: italic; color: #aaa;">"La cupidité est un péché, mais se faire prendre est un crime."</p>
+            <p style="font-style: italic; color: #aaa;">"La cupidité est un péché, mais se faire prendre est un crime."
+            </p>
             <button onclick="restartGame()">Recommencer une nouvelle vie</button>
         </div>
     </div>
 
-<script>
-    // --- CONFIGURATION & DATA ---
-    const GAME_CONFIG = {
-        baseRiskMultiplier: 0.05, 
-        baseRiskReductionPerClick: 1.0, 
-        auditPenalty: 0.30, 
-        costGrowth: 1.15,
-        eventChance: 0.005,
-        diminishingReturnsFactor: 200,
-        bribeRiskReduction: 15,
-        maxStrikes: 5
-    };
-
-    // Skills Actifs (Définitions)
-    const SKILLS_DATA = {
-        disinfo: { name: "Campagne de Désinformation", riskReduction: 10, cooldown: 60, icon: "📰", unlocked: false },
-        fire: { name: "Incendie 'Accidentel'", riskReduction: 20, cooldown: 120, icon: "🔥", unlocked: false },
-        scapegoat: { name: "Bouc Émissaire", riskReduction: 35, cooldown: 300, icon: "🐐", unlocked: false }
-    };
-
-    const RESEARCH_DATA = [
-        { id: 'res_1', name: "Déchiqueteuse Industrielle", cost: 15000, multiplier: 2, icon: "🏭", desc: "Clics x2 plus efficaces." },
-        // UNLOCK SKILL 1
-        { id: 'res_skill_1', name: "Opération 'Écran de Fumée'", cost: 50000, multiplier: 1, icon: "⚡", desc: "Débloque: Campagne de Désinformation.", unlocksSkill: 'disinfo' },
-        { id: 'res_2', name: "Réseau VPN Quantique", cost: 150000, multiplier: 5, icon: "🌐", desc: "Clics x5 plus efficaces." },
-        // UNLOCK SKILL 2
-        { id: 'res_skill_2', name: "Le 'Nettoyeur'", cost: 500000, multiplier: 1, icon: "⚡", desc: "Débloque: Incendie 'Accidentel'.", unlocksSkill: 'fire' },
-        { id: 'res_3', name: "Algorithme de 'Lavage'", cost: 1500000, multiplier: 10, icon: "🧼", desc: "Clics x10 plus efficaces." },
-        // UNLOCK SKILL 3
-        { id: 'res_skill_3', name: "Plan 'Sacrifice'", cost: 10000000, multiplier: 1, icon: "⚡", desc: "Débloque: Bouc Émissaire.", unlocksSkill: 'scapegoat' },
-        { id: 'res_4', name: "IA de Corruption", cost: 25000000, multiplier: 20, icon: "🤖", desc: "Clics x20 plus efficaces." }
-    ];
-
-    let gameState;
-    let gameLoopInterval;
-
-    const RANDOM_EVENTS = [
-        { title: "Enquête Journalistique", desc: "Un journaliste fouine trop. Risque +10%", riskDelta: 10, type: "bad" },
-        { title: "Fuite de Données", desc: "Un stagiaire a perdu une clé USB. Risque +15%", riskDelta: 15, type: "bad" },
-        { title: "Panama Papers", desc: "Vos comptes sont exposés ! Risque +30%", riskDelta: 30, type: "bad" },
-        { title: "Lanceur d'Alerte", desc: "Un employé parle trop... Risque +12%", riskDelta: 12, type: "bad" },
-        { title: "Pot-de-vin réussi", desc: "Le maire regarde ailleurs. Risque -10%", riskDelta: -10, type: "good" },
-        { title: "Faille Juridique", desc: "Votre avocat a trouvé un vide juridique. Risque -5%", riskDelta: -5, type: "good" },
-        { title: "Dossier Perdu", desc: "L'administration a perdu votre dossier. Risque -8%", riskDelta: -8, type: "good" }
-    ];
-
-    function initGame() {
-        gameState = {
-            money: 15,
-            risk: 0,
-            defense: 1.0,
-            clickPower: 1, 
-            strikes: 0,
-            researchUnlocked: false,
-            researchesOwned: [],
-            // Cooldowns actuels des skills (0 = prêt)
-            skillCooldowns: {
-                disinfo: 0,
-                fire: 0,
-                scapegoat: 0
-            },
-            buildings: [
-                { id: 0, name: "Stand de Limonade", baseCost: 4, income: 1, count: 0, icon: "🍋" },
-                { id: 1, name: "Laverie Auto", baseCost: 60, income: 4, count: 0, icon: "🧺" },
-                { id: 2, name: "Restaurant Cash-Only", baseCost: 720, income: 44, count: 0, icon: "🍕" },
-                { id: 3, name: "Société Écran", baseCost: 8640, income: 480, count: 0, icon: "🏢" }, 
-                { id: 4, name: "Mine de Crypto", baseCost: 103680, income: 5200, count: 0, icon: "💻" },
-                { id: 5, name: "Banque Offshore", baseCost: 1200000, income: 58000, count: 0, icon: "🏦" }
-            ],
-            lawyerCost: 500,
-            lawyerLevel: 0,
-            isGameOver: false
+    <script>
+        // --- CONFIGURATION & DATA ---
+        const GAME_CONFIG = {
+            baseRiskMultiplier: 0.05,
+            baseRiskReductionPerClick: 1.0,
+            auditPenalty: 0.30,
+            costGrowth: 1.15,
+            eventChance: 0.005,
+            diminishingReturnsFactor: 200,
+            bribeRiskReduction: 15,
+            maxStrikes: 5
         };
 
-        // Reset Skill Unlocks
-        Object.keys(SKILLS_DATA).forEach(key => SKILLS_DATA[key].unlocked = false);
+        // Skills Actifs (Définitions)
+        const SKILLS_DATA = {
+            disinfo: { name: "Campagne de Désinformation", riskReduction: 10, cooldown: 60, icon: "📰", unlocked: false },
+            fire: { name: "Incendie 'Accidentel'", riskReduction: 20, cooldown: 120, icon: "🔥", unlocked: false },
+            scapegoat: { name: "Bouc Émissaire", riskReduction: 35, cooldown: 300, icon: "🐐", unlocked: false }
+        };
 
-        // Reset UI
-        document.getElementById('research-tab-btn').style.display = 'none';
-        document.getElementById('research-list').innerHTML = "";
-        document.getElementById('activeSkillsContainer').innerHTML = "";
-        
-        let container = document.getElementById('buildings-tab');
-        container.innerHTML = "";
-        gameState.buildings.forEach((b, index) => {
-            let item = document.createElement('div');
-            item.className = 'shop-item disabled';
-            item.id = `building-${index}`;
-            item.onclick = () => buyBuilding(index);
+        const RESEARCH_DATA = [
+            { id: 'res_1', name: "Déchiqueteuse Industrielle", cost: 15000, multiplier: 2, icon: "🏭", desc: "Clics x2 plus efficaces." },
+            // UNLOCK SKILL 1
+            { id: 'res_skill_1', name: "Opération 'Écran de Fumée'", cost: 50000, multiplier: 1, icon: "⚡", desc: "Débloque: Campagne de Désinformation.", unlocksSkill: 'disinfo' },
+            { id: 'res_2', name: "Réseau VPN Quantique", cost: 150000, multiplier: 5, icon: "🌐", desc: "Clics x5 plus efficaces." },
+            // UNLOCK SKILL 2
+            { id: 'res_skill_2', name: "Le 'Nettoyeur'", cost: 500000, multiplier: 1, icon: "⚡", desc: "Débloque: Incendie 'Accidentel'.", unlocksSkill: 'fire' },
+            { id: 'res_3', name: "Algorithme de 'Lavage'", cost: 1500000, multiplier: 10, icon: "🧼", desc: "Clics x10 plus efficaces." },
+            // UNLOCK SKILL 3
+            { id: 'res_skill_3', name: "Plan 'Sacrifice'", cost: 10000000, multiplier: 1, icon: "⚡", desc: "Débloque: Bouc Émissaire.", unlocksSkill: 'scapegoat' },
+            { id: 'res_4', name: "IA de Corruption", cost: 25000000, multiplier: 20, icon: "🤖", desc: "Clics x20 plus efficaces." }
+        ];
 
-            // Add specific info for Shell Company
-            let extraInfo = "";
-            if (b.id === 3) {
-                extraInfo = `<div style="font-size: 0.7rem; color: var(--tech-color); margin-top: 2px;">🔓 Débloque R&D</div>`;
-            }
+        let gameState;
+        let gameLoopInterval;
 
-            item.innerHTML = `
+        const RANDOM_EVENTS = [
+            { title: "Enquête Journalistique", desc: "Un journaliste fouine trop. Risque +10%", riskDelta: 10, type: "bad" },
+            { title: "Fuite de Données", desc: "Un stagiaire a perdu une clé USB. Risque +15%", riskDelta: 15, type: "bad" },
+            { title: "Panama Papers", desc: "Vos comptes sont exposés ! Risque +30%", riskDelta: 30, type: "bad" },
+            { title: "Lanceur d'Alerte", desc: "Un employé parle trop... Risque +12%", riskDelta: 12, type: "bad" },
+            { title: "Pot-de-vin réussi", desc: "Le maire regarde ailleurs. Risque -10%", riskDelta: -10, type: "good" },
+            { title: "Faille Juridique", desc: "Votre avocat a trouvé un vide juridique. Risque -5%", riskDelta: -5, type: "good" },
+            { title: "Dossier Perdu", desc: "L'administration a perdu votre dossier. Risque -8%", riskDelta: -8, type: "good" }
+        ];
+
+        function initGame() {
+            gameState = {
+                money: 15,
+                risk: 0,
+                defense: 1.0,
+                clickPower: 1,
+                strikes: 0,
+                researchUnlocked: false,
+                researchesOwned: [],
+                // Cooldowns actuels des skills (0 = prêt)
+                skillCooldowns: {
+                    disinfo: 0,
+                    fire: 0,
+                    scapegoat: 0
+                },
+                buildings: [
+                    { id: 0, name: "Stand de Limonade", baseCost: 4, income: 1, count: 0, icon: "🍋" },
+                    { id: 1, name: "Laverie Auto", baseCost: 60, income: 4, count: 0, icon: "🧺" },
+                    { id: 2, name: "Restaurant Cash-Only", baseCost: 720, income: 44, count: 0, icon: "🍕" },
+                    { id: 3, name: "Société Écran", baseCost: 8640, income: 480, count: 0, icon: "🏢" },
+                    { id: 4, name: "Mine de Crypto", baseCost: 103680, income: 5200, count: 0, icon: "💻" },
+                    { id: 5, name: "Banque Offshore", baseCost: 1200000, income: 58000, count: 0, icon: "🏦" }
+                ],
+                lawyerCost: 500,
+                lawyerLevel: 0,
+                isGameOver: false
+            };
+
+            // Reset Skill Unlocks
+            Object.keys(SKILLS_DATA).forEach(key => SKILLS_DATA[key].unlocked = false);
+
+            // Reset UI
+            document.getElementById('research-tab-btn').style.display = 'none';
+            document.getElementById('research-list').innerHTML = "";
+            document.getElementById('activeSkillsContainer').innerHTML = "";
+
+            let container = document.getElementById('buildings-tab');
+            container.innerHTML = "";
+            gameState.buildings.forEach((b, index) => {
+                let item = document.createElement('div');
+                item.className = 'shop-item disabled';
+                item.id = `building-${index}`;
+                item.onclick = () => buyBuilding(index);
+
+                // Add specific info for Shell Company
+                let extraInfo = "";
+                if (b.id === 3) {
+                    extraInfo = `<div style="font-size: 0.7rem; color: var(--tech-color); margin-top: 2px;">🔓 Débloque R&D</div>`;
+                }
+
+                item.innerHTML = `
                 <div class="item-info">
                     <h4>${b.icon} ${b.name}</h4>
                     <div class="item-cost"><span class="cost-val">${b.baseCost}</span> $</div>
@@ -698,422 +770,423 @@
                 </div>
                 <div class="item-count count-val">0</div>
             `;
-            container.appendChild(item);
-        });
+                container.appendChild(item);
+            });
 
-        updateUI();
-    }
-
-    // --- CORE LOOP ---
-    function startGameLoop() {
-        if (gameLoopInterval) clearInterval(gameLoopInterval);
-        gameLoopInterval = setInterval(() => {
-            if (!gameState.isGameOver) gameTick();
-        }, 100);
-    }
-
-    function gameTick() {
-        let incomePerSec = calculateTotalIncome();
-        let incomePerTick = incomePerSec / 10;
-
-        // 1. Ajout Argent
-        gameState.money += incomePerTick;
-
-        // 2. Montée du Risque Passive
-        if (incomePerSec > 0) {
-            let riskIncrease = (Math.log10(incomePerSec + 1) * GAME_CONFIG.baseRiskMultiplier) / gameState.defense;
-            gameState.risk += riskIncrease;
-        }
-
-        // 3. Update Cooldowns
-        updateCooldowns(0.1);
-
-        // 4. Random Events
-        handleRandomEvents();
-
-        // 5. Check Unlock Research
-        if (!gameState.researchUnlocked && gameState.buildings[3].count > 0) {
-            unlockResearchTab();
-        }
-
-        // 6. Clamp & Audit Check
-        if (gameState.risk < 0) gameState.risk = 0;
-        if (gameState.risk >= 100) triggerAudit();
-
-        // 7. Update UI
-        updateUI();
-    }
-
-    // --- LOGIC ---
-
-    function updateCooldowns(deltaTime) {
-        for (let key in gameState.skillCooldowns) {
-            if (gameState.skillCooldowns[key] > 0) {
-                gameState.skillCooldowns[key] -= deltaTime;
-                if (gameState.skillCooldowns[key] < 0) gameState.skillCooldowns[key] = 0;
-            }
-        }
-    }
-
-    function unlockResearchTab() {
-        gameState.researchUnlocked = true;
-        document.getElementById('research-tab-btn').style.display = 'block';
-        showEventToast({ title: "Département R&D", desc: "Nouvelle technologie débloquée !", type: "tech" });
-        initResearchList(); 
-    }
-
-    function calculateTotalIncome() {
-        return gameState.buildings.reduce((acc, b) => acc + (b.income * b.count), 0);
-    }
-
-    function calculateBribeCost() {
-        let incomeBased = calculateTotalIncome() * 30;
-        return Math.max(500, Math.floor(incomeBased));
-    }
-
-    function getBuildingCost(building) {
-        return Math.floor(building.baseCost * Math.pow(GAME_CONFIG.costGrowth, building.count));
-    }
-
-    function getClickRiskReduction() {
-        let income = calculateTotalIncome();
-        let efficiency = GAME_CONFIG.baseRiskReductionPerClick / (1 + (income / GAME_CONFIG.diminishingReturnsFactor));
-        return Math.max(efficiency, 0.01) * gameState.clickPower;
-    }
-
-    function clickShredder(e) {
-        if (gameState.isGameOver) return;
-
-        let baseClickGain = 1 + (calculateTotalIncome() * 0.01);
-        let finalClickGain = baseClickGain * gameState.clickPower;
-        
-        gameState.money += finalClickGain;
-        
-        let reduction = getClickRiskReduction();
-        gameState.risk -= reduction;
-        if (gameState.risk < 0) gameState.risk = 0;
-
-        createFloatingText(e.clientX, e.clientY, `+$${formatMoney(finalClickGain)}`);
-        
-        let btn = document.getElementById('shredderBtn');
-        btn.style.transform = "scale(0.95)";
-        setTimeout(() => btn.style.transform = "scale(1)", 100);
-
-        updateUI();
-    }
-
-    function useSkill(skillKey) {
-        if (gameState.isGameOver) return;
-        
-        let skill = SKILLS_DATA[skillKey];
-        if (!skill.unlocked) return;
-        if (gameState.skillCooldowns[skillKey] > 0) return; // On cooldown
-
-        // Activate Effect
-        gameState.risk -= skill.riskReduction;
-        if (gameState.risk < 0) gameState.risk = 0;
-        
-        // Set Cooldown
-        gameState.skillCooldowns[skillKey] = skill.cooldown;
-
-        // Feedback
-        showEventToast({ 
-            title: skill.name, 
-            desc: `Risque réduit de ${skill.riskReduction}%`, 
-            type: "tech" 
-        });
-        updateUI();
-    }
-
-    function buyBuilding(index) {
-        if (gameState.isGameOver) return;
-        let b = gameState.buildings[index];
-        let cost = getBuildingCost(b);
-        if (gameState.money >= cost) {
-            gameState.money -= cost;
-            b.count++;
             updateUI();
         }
-    }
 
-    function buyResearch(index) {
-        if (gameState.isGameOver) return;
-        let res = RESEARCH_DATA[index];
-        if (gameState.researchesOwned.includes(res.id)) return; 
+        // --- CORE LOOP ---
+        function startGameLoop() {
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(() => {
+                if (!gameState.isGameOver) gameTick();
+            }, 100);
+        }
 
-        if (gameState.money >= res.cost) {
-            gameState.money -= res.cost;
-            gameState.researchesOwned.push(res.id);
-            gameState.clickPower *= res.multiplier; 
-            
-            // Check Unlock Skill
-            if (res.unlocksSkill) {
-                SKILLS_DATA[res.unlocksSkill].unlocked = true;
-                initSkillButtons(); // Re-render skills area
-                showEventToast({ title: "Compétence Débloquée", desc: SKILLS_DATA[res.unlocksSkill].name, type: "tech" });
+        function gameTick() {
+            let incomePerSec = calculateTotalIncome();
+            let incomePerTick = incomePerSec / 10;
+
+            // 1. Ajout Argent
+            gameState.money += incomePerTick;
+
+            // 2. Montée du Risque Passive
+            if (incomePerSec > 0) {
+                let riskIncrease = (Math.log10(incomePerSec + 1) * GAME_CONFIG.baseRiskMultiplier) / gameState.defense;
+                gameState.risk += riskIncrease;
             }
 
-            initResearchList();
-            updateUI();
-        }
-    }
+            // 3. Update Cooldowns
+            updateCooldowns(0.1);
 
-    function buyLawyer() {
-        if (gameState.isGameOver) return;
-        if (gameState.money >= gameState.lawyerCost) {
-            gameState.money -= gameState.lawyerCost;
-            gameState.lawyerLevel++;
-            gameState.defense += 0.5;
-            gameState.lawyerCost = Math.floor(gameState.lawyerCost * 2.5);
-            updateUI();
-        }
-    }
+            // 4. Random Events
+            handleRandomEvents();
 
-    function payBribe() {
-        if (gameState.isGameOver) return;
-        let cost = calculateBribeCost();
-        if (gameState.money >= cost) {
-            gameState.money -= cost;
-            gameState.risk -= GAME_CONFIG.bribeRiskReduction;
+            // 5. Check Unlock Research
+            if (!gameState.researchUnlocked && gameState.buildings[3].count > 0) {
+                unlockResearchTab();
+            }
+
+            // 6. Clamp & Audit Check
             if (gameState.risk < 0) gameState.risk = 0;
-            
-            showEventToast({ 
-                title: "Inspecteur Corrompu", 
-                desc: "Risque réduit de 15%. C'est beau la loyauté.", 
-                type: "bribe" 
+            if (gameState.risk >= 100) triggerAudit();
+
+            // 7. Update UI
+            updateUI();
+        }
+
+        // --- LOGIC ---
+
+        function updateCooldowns(deltaTime) {
+            for (let key in gameState.skillCooldowns) {
+                if (gameState.skillCooldowns[key] > 0) {
+                    gameState.skillCooldowns[key] -= deltaTime;
+                    if (gameState.skillCooldowns[key] < 0) gameState.skillCooldowns[key] = 0;
+                }
+            }
+        }
+
+        function unlockResearchTab() {
+            gameState.researchUnlocked = true;
+            document.getElementById('research-tab-btn').style.display = 'block';
+            showEventToast({ title: "Département R&D", desc: "Nouvelle technologie débloquée !", type: "tech" });
+            initResearchList();
+        }
+
+        function calculateTotalIncome() {
+            return gameState.buildings.reduce((acc, b) => acc + (b.income * b.count), 0);
+        }
+
+        function calculateBribeCost() {
+            let incomeBased = calculateTotalIncome() * 30;
+            return Math.max(500, Math.floor(incomeBased));
+        }
+
+        function getBuildingCost(building) {
+            return Math.floor(building.baseCost * Math.pow(GAME_CONFIG.costGrowth, building.count));
+        }
+
+        function getClickRiskReduction() {
+            let income = calculateTotalIncome();
+            let efficiency = GAME_CONFIG.baseRiskReductionPerClick / (1 + (income / GAME_CONFIG.diminishingReturnsFactor));
+            return Math.max(efficiency, 0.01) * gameState.clickPower;
+        }
+
+        function clickShredder(e) {
+            if (gameState.isGameOver) return;
+
+            let baseClickGain = 1 + (calculateTotalIncome() * 0.01);
+            let finalClickGain = baseClickGain * gameState.clickPower;
+
+            gameState.money += finalClickGain;
+
+            let reduction = getClickRiskReduction();
+            gameState.risk -= reduction;
+            if (gameState.risk < 0) gameState.risk = 0;
+
+            createFloatingText(e.clientX, e.clientY, `+$${formatMoney(finalClickGain)}`);
+
+            let btn = document.getElementById('shredderBtn');
+            btn.style.transform = "scale(0.95)";
+            setTimeout(() => btn.style.transform = "scale(1)", 100);
+
+            updateUI();
+        }
+
+        function useSkill(skillKey) {
+            if (gameState.isGameOver) return;
+
+            let skill = SKILLS_DATA[skillKey];
+            if (!skill.unlocked) return;
+            if (gameState.skillCooldowns[skillKey] > 0) return; // On cooldown
+
+            // Activate Effect
+            gameState.risk -= skill.riskReduction;
+            if (gameState.risk < 0) gameState.risk = 0;
+
+            // Set Cooldown
+            gameState.skillCooldowns[skillKey] = skill.cooldown;
+
+            // Feedback
+            showEventToast({
+                title: skill.name,
+                desc: `Risque réduit de ${skill.riskReduction}%`,
+                type: "tech"
             });
             updateUI();
         }
-    }
 
-    function handleRandomEvents() {
-        if (gameState.risk >= 100) return; 
-        if (calculateTotalIncome() < 10) return;
-
-        if (Math.random() < GAME_CONFIG.eventChance) {
-            let event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
-            gameState.risk += event.riskDelta;
-            if (gameState.risk < 0) gameState.risk = 0;
-            showEventToast(event);
-        }
-    }
-
-    function triggerAudit() {
-        gameState.risk = 0;
-        gameState.strikes++;
-        updateUI();
-
-        if (gameState.strikes >= GAME_CONFIG.maxStrikes) {
-            gameOver();
-        } else {
-            let penalty = gameState.money * GAME_CONFIG.auditPenalty;
-            gameState.money -= penalty;
-            document.getElementById('auditModal').style.display = 'flex';
-        }
-    }
-
-    function gameOver() {
-        gameState.isGameOver = true;
-        document.getElementById('gameOverModal').style.display = 'flex';
-    }
-
-    function restartGame() {
-        document.getElementById('gameOverModal').style.display = 'none';
-        initGame();
-    }
-
-    function closeAudit() {
-        document.getElementById('auditModal').style.display = 'none';
-        gameState.risk = 0;
-    }
-
-    // --- UI ---
-
-    function showEventToast(event) {
-        let toast = document.getElementById('eventToast');
-        let title = document.getElementById('eventTitle');
-        let desc = document.getElementById('eventDesc');
-
-        title.innerText = event.title;
-        desc.innerText = event.desc;
-        
-        toast.className = `event-toast ${event.type}`;
-        toast.style.display = 'flex';
-
-        if (event.type !== 'tech' && event.type !== 'bribe') {
-            document.getElementById('newsTickerText').innerText = `FLASH INFO: ${event.title} - ${event.desc}`;
-        }
-
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 4000);
-    }
-
-    function updateUI() {
-        document.getElementById('totalMoney').innerText = formatMoney(gameState.money) + " $";
-        document.getElementById('incomePerSec').innerText = formatMoney(calculateTotalIncome());
-        document.getElementById('defenseLevel').innerText = gameState.defense.toFixed(1);
-        document.getElementById('clickPowerDisplay').innerText = formatMoney(gameState.clickPower);
-        
-        let strikeEl = document.getElementById('strikeCount');
-        strikeEl.innerText = gameState.strikes;
-        strikeEl.style.color = gameState.strikes >= 4 ? '#f44336' : (gameState.strikes >= 2 ? '#ff9800' : 'inherit');
-
-        let r = gameState.risk;
-        let bar = document.getElementById('riskBar');
-        bar.style.width = Math.min(r, 100) + "%";
-        document.getElementById('riskValue').innerText = r.toFixed(1);
-        
-        if (r < 50) bar.style.backgroundColor = "var(--risk-low)";
-        else if (r < 80) bar.style.backgroundColor = "var(--risk-med)";
-        else bar.style.backgroundColor = "var(--risk-high)";
-
-        document.getElementById('auditAlert').style.display = (r > 85) ? 'block' : 'none';
-
-        // Update Skill Buttons (Cooldown visuals)
-        updateSkillButtonsUI();
-
-        // Business List
-        gameState.buildings.forEach((b, index) => {
-            let el = document.getElementById(`building-${index}`);
-            if(el) {
-                let currentCost = getBuildingCost(b);
-                el.querySelector('.cost-val').innerText = formatMoney(currentCost);
-                el.querySelector('.count-val').innerText = b.count;
-                if (gameState.money >= currentCost) el.classList.remove('disabled');
-                else el.classList.add('disabled');
+        function buyBuilding(index) {
+            if (gameState.isGameOver) return;
+            let b = gameState.buildings[index];
+            let cost = getBuildingCost(b);
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                b.count++;
+                updateUI();
             }
-        });
+        }
 
-        // Lawyer & Bribe
-        document.getElementById('lawyer-cost').innerText = formatMoney(gameState.lawyerCost) + " $";
-        document.getElementById('lawyer-stat').innerText = gameState.defense.toFixed(1);
-        let lawyerBtn = document.getElementById('lawyer-upgrade');
-        if (gameState.money >= gameState.lawyerCost) lawyerBtn.classList.remove('disabled');
-        else lawyerBtn.classList.add('disabled');
+        function buyResearch(index) {
+            if (gameState.isGameOver) return;
+            let res = RESEARCH_DATA[index];
+            if (gameState.researchesOwned.includes(res.id)) return;
 
-        let bribeCost = calculateBribeCost();
-        document.getElementById('bribe-cost').innerText = formatMoney(bribeCost) + " $";
-        let bribeBtn = document.getElementById('bribe-action');
-        if (gameState.money >= bribeCost) bribeBtn.classList.remove('disabled');
-        else bribeBtn.classList.add('disabled');
+            if (gameState.money >= res.cost) {
+                gameState.money -= res.cost;
+                gameState.researchesOwned.push(res.id);
+                gameState.clickPower *= res.multiplier;
 
-        // Research List
-        if (gameState.researchUnlocked) {
-            RESEARCH_DATA.forEach((res, index) => {
-                let el = document.getElementById(`research-${index}`);
-                if (el && !gameState.researchesOwned.includes(res.id)) {
-                    if (gameState.money >= res.cost) el.classList.remove('disabled');
+                // Check Unlock Skill
+                if (res.unlocksSkill) {
+                    SKILLS_DATA[res.unlocksSkill].unlocked = true;
+                    initSkillButtons(); // Re-render skills area
+                    showEventToast({ title: "Compétence Débloquée", desc: SKILLS_DATA[res.unlocksSkill].name, type: "tech" });
+                }
+
+                initResearchList();
+                updateUI();
+            }
+        }
+
+        function buyLawyer() {
+            if (gameState.isGameOver) return;
+            if (gameState.money >= gameState.lawyerCost) {
+                gameState.money -= gameState.lawyerCost;
+                gameState.lawyerLevel++;
+                gameState.defense += 0.5;
+                gameState.lawyerCost = Math.floor(gameState.lawyerCost * 2.5);
+                updateUI();
+            }
+        }
+
+        function payBribe() {
+            if (gameState.isGameOver) return;
+            let cost = calculateBribeCost();
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                gameState.risk -= GAME_CONFIG.bribeRiskReduction;
+                if (gameState.risk < 0) gameState.risk = 0;
+
+                showEventToast({
+                    title: "Inspecteur Corrompu",
+                    desc: "Risque réduit de 15%. C'est beau la loyauté.",
+                    type: "bribe"
+                });
+                updateUI();
+            }
+        }
+
+        function handleRandomEvents() {
+            if (gameState.risk >= 100) return;
+            if (calculateTotalIncome() < 10) return;
+
+            if (Math.random() < GAME_CONFIG.eventChance) {
+                let event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+                gameState.risk += event.riskDelta;
+                if (gameState.risk < 0) gameState.risk = 0;
+                showEventToast(event);
+            }
+        }
+
+        function triggerAudit() {
+            gameState.risk = 0;
+            gameState.strikes++;
+            updateUI();
+
+            if (gameState.strikes >= GAME_CONFIG.maxStrikes) {
+                gameOver();
+            } else {
+                let penalty = gameState.money * GAME_CONFIG.auditPenalty;
+                gameState.money -= penalty;
+                document.getElementById('auditModal').style.display = 'flex';
+            }
+        }
+
+        function gameOver() {
+            gameState.isGameOver = true;
+            document.getElementById('gameOverModal').style.display = 'flex';
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverModal').style.display = 'none';
+            initGame();
+        }
+
+        function closeAudit() {
+            document.getElementById('auditModal').style.display = 'none';
+            gameState.risk = 0;
+        }
+
+        // --- UI ---
+
+        function showEventToast(event) {
+            let toast = document.getElementById('eventToast');
+            let title = document.getElementById('eventTitle');
+            let desc = document.getElementById('eventDesc');
+
+            title.innerText = event.title;
+            desc.innerText = event.desc;
+
+            toast.className = `event-toast ${event.type}`;
+            toast.style.display = 'flex';
+
+            if (event.type !== 'tech' && event.type !== 'bribe') {
+                document.getElementById('newsTickerText').innerText = `FLASH INFO: ${event.title} - ${event.desc}`;
+            }
+
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        function updateUI() {
+            document.getElementById('totalMoney').innerText = formatMoney(gameState.money) + " $";
+            document.getElementById('incomePerSec').innerText = formatMoney(calculateTotalIncome());
+            document.getElementById('defenseLevel').innerText = gameState.defense.toFixed(1);
+            document.getElementById('clickPowerDisplay').innerText = formatMoney(gameState.clickPower);
+
+            let strikeEl = document.getElementById('strikeCount');
+            strikeEl.innerText = gameState.strikes;
+            strikeEl.style.color = gameState.strikes >= 4 ? '#f44336' : (gameState.strikes >= 2 ? '#ff9800' : 'inherit');
+
+            let r = gameState.risk;
+            let bar = document.getElementById('riskBar');
+            bar.style.width = Math.min(r, 100) + "%";
+            document.getElementById('riskValue').innerText = r.toFixed(1);
+
+            if (r < 50) bar.style.backgroundColor = "var(--risk-low)";
+            else if (r < 80) bar.style.backgroundColor = "var(--risk-med)";
+            else bar.style.backgroundColor = "var(--risk-high)";
+
+            document.getElementById('auditAlert').style.display = (r > 85) ? 'block' : 'none';
+
+            // Update Skill Buttons (Cooldown visuals)
+            updateSkillButtonsUI();
+
+            // Business List
+            gameState.buildings.forEach((b, index) => {
+                let el = document.getElementById(`building-${index}`);
+                if (el) {
+                    let currentCost = getBuildingCost(b);
+                    el.querySelector('.cost-val').innerText = formatMoney(currentCost);
+                    el.querySelector('.count-val').innerText = b.count;
+                    if (gameState.money >= currentCost) el.classList.remove('disabled');
                     else el.classList.add('disabled');
                 }
             });
-        }
-    }
 
-    function initSkillButtons() {
-        let container = document.getElementById('activeSkillsContainer');
-        container.innerHTML = "";
-        
-        for (let key in SKILLS_DATA) {
-            let skill = SKILLS_DATA[key];
-            if (skill.unlocked) {
-                let btn = document.createElement('div');
-                btn.className = 'skill-btn';
-                btn.id = `skill-${key}`;
-                btn.onclick = () => useSkill(key);
-                btn.title = `${skill.name} (-${skill.riskReduction}% Risque)`;
-                
-                btn.innerHTML = `
+            // Lawyer & Bribe
+            document.getElementById('lawyer-cost').innerText = formatMoney(gameState.lawyerCost) + " $";
+            document.getElementById('lawyer-stat').innerText = gameState.defense.toFixed(1);
+            let lawyerBtn = document.getElementById('lawyer-upgrade');
+            if (gameState.money >= gameState.lawyerCost) lawyerBtn.classList.remove('disabled');
+            else lawyerBtn.classList.add('disabled');
+
+            let bribeCost = calculateBribeCost();
+            document.getElementById('bribe-cost').innerText = formatMoney(bribeCost) + " $";
+            let bribeBtn = document.getElementById('bribe-action');
+            if (gameState.money >= bribeCost) bribeBtn.classList.remove('disabled');
+            else bribeBtn.classList.add('disabled');
+
+            // Research List
+            if (gameState.researchUnlocked) {
+                RESEARCH_DATA.forEach((res, index) => {
+                    let el = document.getElementById(`research-${index}`);
+                    if (el && !gameState.researchesOwned.includes(res.id)) {
+                        if (gameState.money >= res.cost) el.classList.remove('disabled');
+                        else el.classList.add('disabled');
+                    }
+                });
+            }
+        }
+
+        function initSkillButtons() {
+            let container = document.getElementById('activeSkillsContainer');
+            container.innerHTML = "";
+
+            for (let key in SKILLS_DATA) {
+                let skill = SKILLS_DATA[key];
+                if (skill.unlocked) {
+                    let btn = document.createElement('div');
+                    btn.className = 'skill-btn';
+                    btn.id = `skill-${key}`;
+                    btn.onclick = () => useSkill(key);
+                    btn.title = `${skill.name} (-${skill.riskReduction}% Risque)`;
+
+                    btn.innerHTML = `
                     <div class="skill-icon">${skill.icon}</div>
                     <div class="skill-label">${skill.name}</div>
                     <div class="skill-cooldown-overlay" id="skill-cd-${key}"></div>
                 `;
-                container.appendChild(btn);
-            }
-        }
-    }
-
-    function updateSkillButtonsUI() {
-        for (let key in gameState.skillCooldowns) {
-            let skill = SKILLS_DATA[key];
-            if (skill.unlocked) {
-                let btn = document.getElementById(`skill-${key}`);
-                let overlay = document.getElementById(`skill-cd-${key}`);
-                let currentCD = gameState.skillCooldowns[key];
-                
-                if (currentCD > 0) {
-                    btn.classList.add('on-cooldown');
-                    overlay.style.display = 'flex';
-                    // Hauteur proportionnelle
-                    let pct = (currentCD / skill.cooldown) * 100;
-                    overlay.style.height = pct + "%";
-                    overlay.innerText = Math.ceil(currentCD);
-                } else {
-                    btn.classList.remove('on-cooldown');
-                    overlay.style.display = 'none';
+                    container.appendChild(btn);
                 }
             }
         }
-    }
 
-    function createFloatingText(x, y, text) {
-        let el = document.createElement('div');
-        el.classList.add('floating-text');
-        el.innerText = text;
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
-    }
+        function updateSkillButtonsUI() {
+            for (let key in gameState.skillCooldowns) {
+                let skill = SKILLS_DATA[key];
+                if (skill.unlocked) {
+                    let btn = document.getElementById(`skill-${key}`);
+                    let overlay = document.getElementById(`skill-cd-${key}`);
+                    let currentCD = gameState.skillCooldowns[key];
 
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.shop-content').forEach(c => c.style.display = 'none');
-        
-        let btn = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
-        if(btn) btn.classList.add('active');
-        
-        document.getElementById(tabName + '-tab').style.display = 'block';
-    }
+                    if (currentCD > 0) {
+                        btn.classList.add('on-cooldown');
+                        overlay.style.display = 'flex';
+                        // Hauteur proportionnelle
+                        let pct = (currentCD / skill.cooldown) * 100;
+                        overlay.style.height = pct + "%";
+                        overlay.innerText = Math.ceil(currentCD);
+                    } else {
+                        btn.classList.remove('on-cooldown');
+                        overlay.style.display = 'none';
+                    }
+                }
+            }
+        }
 
-    function formatMoney(num) {
-        if (num < 1000) return Math.floor(num);
-        if (num < 1000000) return (num / 1000).toFixed(2) + "k";
-        if (num < 1000000000) return (num / 1000000).toFixed(2) + "M";
-        return (num / 1000000000).toFixed(2) + "B";
-    }
+        function createFloatingText(x, y, text) {
+            let el = document.createElement('div');
+            el.classList.add('floating-text');
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
 
-    function initResearchList() {
-        let container = document.getElementById('research-list');
-        container.innerHTML = ""; // Clear existing
-        RESEARCH_DATA.forEach((res, index) => {
-            let isOwned = gameState.researchesOwned.includes(res.id);
-            let item = document.createElement('div');
-            item.className = 'shop-item disabled';
-            if (isOwned) item.classList.add('purchased');
-            item.id = `research-${index}`;
-            item.onclick = () => buyResearch(index);
-            
-            let costDisplay = isOwned ? "ACQUIS" : `${formatMoney(res.cost)} $`;
-            let nameColor = res.unlocksSkill ? "var(--tech-color)" : "inherit";
-            let iconDisplay = res.unlocksSkill ? "⚡" : res.icon;
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.shop-content').forEach(c => c.style.display = 'none');
 
-            item.innerHTML = `
+            let btn = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
+            if (btn) btn.classList.add('active');
+
+            document.getElementById(tabName + '-tab').style.display = 'block';
+        }
+
+        function formatMoney(num) {
+            if (num < 1000) return Math.floor(num);
+            if (num < 1000000) return (num / 1000).toFixed(2) + "k";
+            if (num < 1000000000) return (num / 1000000).toFixed(2) + "M";
+            return (num / 1000000000).toFixed(2) + "B";
+        }
+
+        function initResearchList() {
+            let container = document.getElementById('research-list');
+            container.innerHTML = ""; // Clear existing
+            RESEARCH_DATA.forEach((res, index) => {
+                let isOwned = gameState.researchesOwned.includes(res.id);
+                let item = document.createElement('div');
+                item.className = 'shop-item disabled';
+                if (isOwned) item.classList.add('purchased');
+                item.id = `research-${index}`;
+                item.onclick = () => buyResearch(index);
+
+                let costDisplay = isOwned ? "ACQUIS" : `${formatMoney(res.cost)} $`;
+                let nameColor = res.unlocksSkill ? "var(--tech-color)" : "inherit";
+                let iconDisplay = res.unlocksSkill ? "⚡" : res.icon;
+
+                item.innerHTML = `
                 <div class="item-info">
                     <h4 style="color: ${nameColor}">${iconDisplay} ${res.name}</h4>
                     <div class="item-cost">${costDisplay}</div>
                     <div class="item-stats">${res.desc}</div>
                 </div>
             `;
-            container.appendChild(item);
-        });
-    }
+                container.appendChild(item);
+            });
+        }
 
-    // INIT
-    initGame();
-    startGameLoop();
-    document.getElementById('shredderBtn').addEventListener('mousedown', clickShredder);
+        // INIT
+        initGame();
+        startGameLoop();
+        document.getElementById('shredderBtn').addEventListener('mousedown', clickShredder);
 
-</script>
+    </script>
 </body>
+
 </html>
