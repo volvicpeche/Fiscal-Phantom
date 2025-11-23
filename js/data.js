@@ -51,3 +51,19 @@ const ACHIEVEMENTS_DATA = [
     { id: 'prestige_1', name: "Nouvelle Identité", desc: "Faire un Exil Fiscal", condition: (state) => state.prestige.currency > 0, icon: "✈️" },
     { id: 'crypto_king', name: "Roi de la Crypto", desc: "Posséder 10 Mines de Crypto", condition: (state) => state.buildings[4].count >= 10, icon: "₿" }
 ];
+
+const BLACK_MARKET_DATA = [
+    { id: 'lobbying', name: "Lobbying Intensif", desc: "Réduit le risque de base de 10%.", cost: 5, icon: "🤝", max: 5 },
+    { id: 'offshore_account', name: "Compte Numéroté", desc: "Conservez 10% de votre cash après reset.", cost: 10, icon: "💼", max: 5 },
+    { id: 'nepotism', name: "Népotisme", desc: "Conservez vos avocats après reset.", cost: 15, icon: "👨‍⚖️", max: 1 },
+    { id: 'botnet', name: "Botnet Russe", desc: "Auto-clic 5 fois par seconde.", cost: 25, icon: "🤖", max: 1 },
+    { id: 'insider', name: "Délit d'Initié", desc: "Débloque le Marché Boursier plus tôt.", cost: 50, icon: "📈", max: 1 }
+];
+
+const STOCKS_DATA = [
+    { symbol: "OFFS", name: "Offshore Holdings", basePrice: 10, volatility: 0.02, desc: "Stable, comme un compte en Suisse." },
+    { symbol: "LAUND", name: "Clean Cash Corp", basePrice: 50, volatility: 0.05, desc: "Ça monte et ça descend, comme le linge." },
+    { symbol: "TECH", name: "Phantom Tech", basePrice: 100, volatility: 0.10, desc: "La bulle spéculative par excellence." },
+    { symbol: "ARMS", name: "Peacekeeper Int.", basePrice: 500, volatility: 0.15, desc: "Le malheur des uns fait votre bonheur." },
+    { symbol: "CRPT", name: "ScamCoin", basePrice: 1000, volatility: 0.30, desc: "To the moon... ou en prison." }
+];

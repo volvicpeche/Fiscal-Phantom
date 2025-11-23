@@ -25,6 +25,9 @@
                         id="clickPowerDisplay">1</span>x</div>
                 <div style="font-size: 0.8rem; cursor: pointer; margin-top: 5px; color: var(--accent);"
                     onclick="openAchievements()">🏆 Trophées</div>
+                <div id="blackMarketBtn"
+                    style="font-size: 0.8rem; cursor: pointer; margin-top: 5px; color: #9c27b0; display: none;"
+                    onclick="openBlackMarket()">🕶️ Marché Noir</div>
             </div>
         </div>
 
@@ -72,6 +75,8 @@
                 <button class="tab-btn active" onclick="switchTab('buildings')">Business</button>
                 <button class="tab-btn" onclick="switchTab('upgrades')">Défense</button>
                 <button id="research-tab-btn" class="tab-btn" onclick="switchTab('research')">🧬 R&D</button>
+                <button id="stock-tab-btn" class="tab-btn" onclick="switchTab('stock')" style="display: none;">📈
+                    Bourse</button>
             </div>
 
             <!-- Liste des Business -->
@@ -120,6 +125,14 @@
                 </div>
                 <div id="research-list"></div>
             </div>
+
+            <!-- Onglet Bourse -->
+            <div id="stock-tab" class="shop-content" style="display: none;">
+                <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
+                    Achetez bas, vendez haut. Attention à la volatilité !
+                </div>
+                <div id="stock-list"></div>
+            </div>
         </div>
     </div>
 
@@ -155,6 +168,18 @@
             <div id="achievementsList"
                 style="max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px;"></div>
             <button onclick="closeAchievements()">Fermer</button>
+        </div>
+    </div>
+
+    <!-- Modal Black Market -->
+    <div class="modal-overlay" id="blackMarketModal">
+        <div class="modal" style="max-width: 600px; width: 90%; border-color: #9c27b0;">
+            <h2 style="color: #9c27b0;">🕶️ Marché Noir 🕶️</h2>
+            <p>Dépensez votre Influence pour des avantages permanents.</p>
+            <div style="margin-bottom: 10px; font-weight: bold;">Influence: <span id="bm-influence">0</span></div>
+            <div id="blackMarketList"
+                style="max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px;"></div>
+            <button onclick="closeBlackMarket()">Fermer</button>
         </div>
     </div>
 

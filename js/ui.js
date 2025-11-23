@@ -124,6 +124,14 @@ function updateUI() {
         prestigeBtn.style.display = 'none';
     }
 
+    // Black Market Button Visibility
+    let bmBtn = document.getElementById('blackMarketBtn');
+    if (gameState.prestige.currency > 0 || Object.keys(gameState.blackMarketUpgrades).length > 0) {
+        bmBtn.style.display = 'block';
+    } else {
+        bmBtn.style.display = 'none';
+    }
+
     // Research List
     if (gameState.researchUnlocked) {
         RESEARCH_DATA.forEach((res, index) => {
@@ -133,6 +141,19 @@ function updateUI() {
                 else el.classList.add('disabled');
             }
         });
+    }
+
+    // Stock Market UI
+    if (gameState.stockMarketUnlocked) {
+        document.getElementById('stock-tab-btn').style.display = 'block';
+        if (document.getElementById('stock-tab').style.display === 'block') {
+            updateStockMarketUI();
+        }
+    }
+
+    // Refresh Black Market Modal if open
+    if (document.getElementById('blackMarketModal').style.display === 'flex') {
+        openBlackMarket(); // Re-render to update buttons
     }
 }
 
@@ -200,6 +221,10 @@ function switchTab(tabName) {
     if (btn) btn.classList.add('active');
 
     document.getElementById(tabName + '-tab').style.display = 'block';
+
+    if (tabName === 'stock') {
+        initStockList(); // Init list when tab is opened first time (or refresh)
+    }
 }
 
 function formatMoney(num) {
@@ -277,9 +302,100 @@ function closeAchievements() {
     document.getElementById('achievementsModal').style.display = 'none';
 }
 
+function openBlackMarket() {
+    let list = document.getElementById('blackMarketList');
+    list.innerHTML = "";
+    document.getElementById('bm-influence').innerText = gameState.prestige.currency;
+
+    BLACK_MARKET_DATA.forEach(upg => {
+        let currentLevel = gameState.blackMarketUpgrades[upg.id] || 0;
+        let isMaxed = currentLevel >= upg.max;
+        let canAfford = gameState.prestige.currency >= upg.cost;
+
+        let item = document.createElement('div');
+        item.className = 'shop-item';
+        item.style.borderColor = '#9c27b0';
+        if (!canAfford && !isMaxed) item.classList.add('disabled');
+        if (isMaxed) item.classList.add('purchased');
+
+        item.onclick = () => {
+            if (!isMaxed && canAfford) buyBlackMarketUpgrade(upg.id);
+        };
+
+        let costText = isMaxed ? "MAX" : `${upg.cost} Influence`;
+
+        item.innerHTML = `
+            <div class="item-info">
+                <h4 style="color: #e1bee7;">${upg.icon} ${upg.name} (Niv. ${currentLevel}/${upg.max})</h4>
+                <div class="item-cost" style="color: #ce93d8;">${costText}</div>
+                <div class="item-stats">${upg.desc}</div>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+
+    document.getElementById('blackMarketModal').style.display = 'flex';
+}
+
+function closeBlackMarket() {
+    document.getElementById('blackMarketModal').style.display = 'none';
+}
+
 function formatTime(seconds) {
     if (!seconds || seconds === Infinity) return "∞";
     if (seconds < 60) return Math.ceil(seconds) + "s";
     if (seconds < 3600) return Math.ceil(seconds / 60) + "m";
     return Math.ceil(seconds / 3600) + "h";
+}
+
+// --- STOCK MARKET UI ---
+
+function initStockList() {
+    let container = document.getElementById('stock-list');
+    if (!container || container.innerHTML !== "") return; // Only init if empty
+
+    STOCKS_DATA.forEach(stock => {
+        let item = document.createElement('div');
+        item.className = 'shop-item';
+        item.id = `stock-${stock.symbol}`;
+        item.style.cursor = "default";
+
+        item.innerHTML = `
+            <div class="item-info" style="width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin: 0;">${stock.symbol} - ${stock.name}</h4>
+                    <div id="stock-price-${stock.symbol}" style="font-weight: bold;">0 $</div>
+                </div>
+                <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">${stock.desc}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 0.8rem;">Possédé: <span id="stock-owned-${stock.symbol}">0</span></div>
+                    <div>
+                        <button class="mini-btn" onclick="buyStock('${stock.symbol}', 1)">Acheter (1)</button>
+                        <button class="mini-btn" onclick="buyStock('${stock.symbol}', 10)">x10</button>
+                        <button class="mini-btn sell" onclick="sellStock('${stock.symbol}', 1)">Vendre (1)</button>
+                        <button class="mini-btn sell" onclick="sellStock('${stock.symbol}', 10)">x10</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+    updateStockMarketUI();
+}
+
+function updateStockMarketUI() {
+    STOCKS_DATA.forEach(stock => {
+        let priceEl = document.getElementById(`stock-price-${stock.symbol}`);
+        let ownedEl = document.getElementById(`stock-owned-${stock.symbol}`);
+
+        if (priceEl && ownedEl) {
+            let price = gameState.stockPrices[stock.symbol];
+            let trend = gameState.stockTrends[stock.symbol];
+            let trendIcon = trend === 'up' ? '📈' : (trend === 'down' ? '📉' : '➖');
+            let trendColor = trend === 'up' ? 'var(--money-color)' : (trend === 'down' ? '#f44336' : '#aaa');
+
+            priceEl.innerHTML = `<span style="color: ${trendColor}">${trendIcon} ${formatMoney(price)} $</span>`;
+            ownedEl.innerText = gameState.stocks[stock.symbol] || 0;
+        }
+    });
 }

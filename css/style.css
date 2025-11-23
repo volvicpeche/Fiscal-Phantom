@@ -526,3 +526,23 @@ header {
     color: var(--risk-high);
     font-weight: bold;
 }
+
+/* --- MINI BUTTONS (STOCK MARKET) --- */
+.mini-btn {
+    background-color: var(--money-color);
+    color: white;
+    border: none;
+    padding: 2px 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    margin-left: 2px;
+}
+
+.mini-btn:hover {
+    filter: brightness(1.1);
+}
+
+.mini-btn.sell {
+    background-color: var(--risk-high);
+}
