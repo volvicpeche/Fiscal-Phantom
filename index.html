@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiscal Phantom: The Offshore Tycoon</title>
+    <meta name="description" content="Un jeu incremental satirique sur l'évasion fiscale et la gestion de crise.">
+    <style>
+        /* --- VARIABLES GLOBALES --- */
+        :root {
+            --bg-color: #1a1a1d;
+            --panel-bg: #2d2d30;
+            --text-color: #e0e0e0;
+            --money-color: #4caf50;
+            --risk-low: #4caf50;
+            --risk-med: #ff9800;
+            --risk-high: #f44336;
+            --accent: #ffd700;
+            --tech-color: #03a9f4;
+            --bribe-color: #e91e63;
+            --skill-ready: #ffffff;
+            --skill-cd: #555555;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- HEADER & RISK BAR --- */
+        header {
+            background-color: #000;
+            padding: 10px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 10;
+            position: relative;
+        }
+
+        .top-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .money-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--money-color);
+            text-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .cps-display {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .risk-container {
+            width: 100%;
+            height: 25px;
+            background-color: #444;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #555;
+        }
+
+        .risk-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--risk-low);
+            transition: width 0.2s linear, background-color 0.5s ease;
+        }
+
+        .risk-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            z-index: 2;
+        }
+
+        /* --- NEWS TICKER (EVENTS) --- */
+        .news-ticker {
+            background-color: #111;
+            color: var(--accent);
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            border-bottom: 1px solid #333;
+            height: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .news-content {
+            display: inline-block;
+            animation: scroll-left 30s linear infinite;
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .game-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* --- LEFT PANEL: CLICKER & SKILLS --- */
+        .clicker-zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 40px;
+            background: radial-gradient(circle at center, #333 0%, var(--bg-color) 70%);
+            position: relative;
+        }
+
+        .shredder-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #333;
+            border: 5px solid #555;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .shredder-btn:active {
+            transform: scale(0.95);
+        }
+
+        .shredder-icon {
+            font-size: 3rem;
+            margin-bottom: 5px;
+        }
+
+        .shredder-label {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .shredder-stats {
+            font-size: 0.7rem; 
+            color: #aaa; 
+            margin-top: 5px;
+        }
+
+        /* --- SKILLS CONTAINER --- */
+        .skills-container {
+            width: 90%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px; /* Espace fixe sous le bouton principal */
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            z-index: 60;
+        }
+
+        .skill-btn {
+            background-color: #2d2d30;
+            border: 1px solid #555;
+            border-radius: 8px;
+            width: 80px;
+            height: 80px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .skill-btn:hover:not(.on-cooldown) {
+            border-color: var(--tech-color);
+            transform: translateY(-2px);
+        }
+
+        .skill-btn.on-cooldown {
+            cursor: not-allowed;
+            background-color: #1a1a1d;
+            border-color: #333;
+            color: #555;
+        }
+
+        .skill-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .skill-label {
+            font-size: 0.6rem;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .skill-cooldown-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            width: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .audit-alert {
+            position: absolute;
+            top: 10px;
+            color: var(--risk-high);
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* --- RIGHT PANEL: SHOP --- */
+        .shop-zone {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border-left: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #222;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn.active {
+            color: white;
+            background-color: var(--panel-bg);
+            border-bottom: 3px solid var(--accent);
+        }
+
+        #research-tab-btn {
+            display: none;
+            color: var(--tech-color);
+        }
+        #research-tab-btn.active {
+            border-bottom-color: var(--tech-color);
+        }
+
+        .shop-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        /* --- SHOP ITEMS --- */
+        .shop-item {
+            background-color: #3a3a3d;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #555;
+            transition: background-color 0.2s;
+        }
+
+        .shop-item:hover {
+            background-color: #454548;
+        }
+
+        .shop-item.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        .shop-item.purchased {
+            border: 1px solid var(--money-color);
+            background-color: #2e3b2e;
+            pointer-events: none;
+        }
+
+        /* Special style for active bribe */
+        .shop-item.bribe-item {
+            border: 1px solid var(--bribe-color);
+            background: linear-gradient(45deg, #3a3a3d, #2a1a1d);
+        }
+        .shop-item.bribe-item:hover {
+            background: linear-gradient(45deg, #454548, #3a2a2d);
+        }
+        .shop-item.bribe-item h4 {
+            color: var(--bribe-color);
+        }
+
+        .item-info h4 {
+            margin: 0 0 5px 0;
+            color: white;
+        }
+
+        .item-cost {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .item-stats {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        .item-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        /* --- FLOATING TEXT ANIMATION --- */
+        .floating-text {
+            position: absolute;
+            color: var(--money-color);
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+
+        /* --- TOAST NOTIFICATION (Events) --- */
+        .event-toast {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--panel-bg);
+            border-left: 5px solid var(--accent);
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            width: 80%;
+            max-width: 300px;
+            z-index: 50;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .event-toast h4 { margin: 0 0 5px 0; color: white; }
+        .event-toast p { margin: 0; font-size: 0.9rem; color: #ccc; }
+        .event-toast.bad { border-left-color: var(--risk-high); }
+        .event-toast.good { border-left-color: var(--money-color); }
+        .event-toast.tech { border-left-color: var(--tech-color); }
+        .event-toast.bribe { border-left-color: var(--bribe-color); }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background-color: #2d2d30;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid var(--risk-high);
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 0 50px rgba(244, 67, 54, 0.5);
+        }
+
+        .modal h2 { color: var(--risk-high); margin-top: 0; }
+        .modal p { margin-bottom: 20px; }
+        .modal button {
+            background-color: var(--risk-high);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .modal button:hover { background-color: #d32f2f; }
+
+        /* Style spécifique Game Over */
+        #gameOverModal .modal {
+            border-color: #000;
+            background-color: #222;
+        }
+        #gameOverModal h2 {
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+        #gameOverModal button {
+            background-color: #555;
+            border: 1px solid #777;
+        }
+
+        .strikes-display {
+            font-size: 0.9rem;
+            color: var(--risk-high);
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="top-stats">
+            <div>
+                <div class="money-display" id="totalMoney">0 $</div>
+                <div class="cps-display"><span id="incomePerSec">0</span> $/sec</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.8rem; color: #aaa;">Défense Légale: <span id="defenseLevel">1</span>x</div>
+                <div class="strikes-display">Casier Judiciaire: <span id="strikeCount">0</span>/5</div>
+                <div style="font-size: 0.8rem; color: var(--tech-color);">Puissance Clic: <span id="clickPowerDisplay">1</span>x</div>
+            </div>
+        </div>
+        
+        <!-- Risk Bar -->
+        <div class="risk-container">
+            <div class="risk-bar" id="riskBar"></div>
+            <div class="risk-text">RISQUE FISCAL: <span id="riskValue">0</span>%</div>
+        </div>
+    </header>
+
+    <!-- News Ticker -->
+    <div class="news-ticker">
+        <div class="news-content" id="newsTickerText">Bienvenue dans le monde de la finance "créative"... Attention aux inspecteurs...</div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-container">
+        
+        <!-- Zone Active (Gauche) -->
+        <div class="clicker-zone">
+            <div class="audit-alert" id="auditAlert">⚠️ AUDIT IMMINENT ⚠️</div>
+            
+            <button class="shredder-btn" id="shredderBtn">
+                <div class="shredder-icon">📄🗑️</div>
+                <div class="shredder-label">Blanchir & Cacher</div>
+                <div class="shredder-stats" id="shredderStats">-1% Risque</div>
+            </button>
+
+            <!-- Container des Skills Actifs -->
+            <div class="skills-container" id="activeSkillsContainer">
+                <!-- Les boutons de skills apparaîtront ici quand débloqués -->
+            </div>
+
+            <!-- Event Toast Notification -->
+            <div class="event-toast" id="eventToast">
+                <h4 id="eventTitle">Titre Event</h4>
+                <p id="eventDesc">Description de l'event.</p>
+            </div>
+        </div>
+
+        <!-- Zone Shop (Droite) -->
+        <div class="shop-zone">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('buildings')">Business</button>
+                <button class="tab-btn" onclick="switchTab('upgrades')">Défense</button>
+                <button id="research-tab-btn" class="tab-btn" onclick="switchTab('research')">🧬 R&D</button>
+            </div>
+
+            <!-- Liste des Business -->
+            <div id="buildings-tab" class="shop-content">
+                <!-- Les items seront générés par JS -->
+            </div>
+
+            <!-- Liste des Upgrades (Avocats & Pots de vin) -->
+            <div id="upgrades-tab" class="shop-content" style="display: none;">
+                <!-- Avocats -->
+                <div class="shop-item" id="lawyer-upgrade" onclick="buyLawyer()">
+                    <div class="item-info">
+                        <h4>Avocat Véreux</h4>
+                        <div class="item-cost" id="lawyer-cost">500 $</div>
+                        <div class="item-stats">Ralentit la jauge de risque (Actuel: /<span id="lawyer-stat">1</span>)</div>
+                    </div>
+                </div>
+
+                <!-- Pot-de-vin d'urgence -->
+                <div class="shop-item bribe-item" id="bribe-action" onclick="payBribe()">
+                    <div class="item-info">
+                        <h4>🤝 Pot-de-vin Express</h4>
+                        <div class="item-cost" id="bribe-cost">??? $</div>
+                        <div class="item-stats">Réduit instantanément le risque de <strong>15%</strong>.</div>
+                        <div style="font-size: 0.7rem; color: #888; font-style: italic;">"J'ai cru voir un billet tomber..."</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglet Recherche -->
+            <div id="research-tab" class="shop-content" style="display: none;">
+                <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
+                    Les technologies R&D débloquent des bonus passifs et des <strong>compétences actives</strong>.
+                </div>
+                <div id="research-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Audit -->
+    <div class="modal-overlay" id="auditModal">
+        <div class="modal">
+            <h2>👮 CONTRÔLE FISCAL ! 👮</h2>
+            <p>Ils ont trouvé vos livres de comptes !</p>
+            <p>L'État a saisi <strong>30%</strong> de votre argent sale.</p>
+            <p style="color: #aaa; font-style: italic;">"Nul n'est censé ignorer la loi..."</p>
+            <p style="color: var(--risk-high); font-weight: bold;">Ceci est ajouté à votre Casier Judiciaire.</p>
+            <button onclick="closeAudit()">Payer l'amende et continuer</button>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal" style="border: 4px solid #000;">
+            <h2 style="color: #f44336;">🏛️ FAILLITE ET PRISON 🏛️</h2>
+            <p>Après <strong>5 redressements fiscaux</strong> majeurs, la justice a tranché.</p>
+            <p>Vos biens sont saisis, votre empire est démantelé, et vous finissez derrière les barreaux.</p>
+            <br>
+            <p style="font-style: italic; color: #aaa;">"La cupidité est un péché, mais se faire prendre est un crime."</p>
+            <button onclick="restartGame()">Recommencer une nouvelle vie</button>
+        </div>
+    </div>
+
+<script>
+    // --- CONFIGURATION & DATA ---
+    const GAME_CONFIG = {
+        baseRiskMultiplier: 0.05, 
+        baseRiskReductionPerClick: 1.0, 
+        auditPenalty: 0.30, 
+        costGrowth: 1.15,
+        eventChance: 0.005,
+        diminishingReturnsFactor: 200,
+        bribeRiskReduction: 15,
+        maxStrikes: 5
+    };
+
+    // Skills Actifs (Définitions)
+    const SKILLS_DATA = {
+        disinfo: { name: "Campagne de Désinformation", riskReduction: 10, cooldown: 60, icon: "📰", unlocked: false },
+        fire: { name: "Incendie 'Accidentel'", riskReduction: 20, cooldown: 120, icon: "🔥", unlocked: false },
+        scapegoat: { name: "Bouc Émissaire", riskReduction: 35, cooldown: 300, icon: "🐐", unlocked: false }
+    };
+
+    const RESEARCH_DATA = [
+        { id: 'res_1', name: "Déchiqueteuse Industrielle", cost: 15000, multiplier: 2, icon: "🏭", desc: "Clics x2 plus efficaces." },
+        // UNLOCK SKILL 1
+        { id: 'res_skill_1', name: "Opération 'Écran de Fumée'", cost: 50000, multiplier: 1, icon: "⚡", desc: "Débloque: Campagne de Désinformation.", unlocksSkill: 'disinfo' },
+        { id: 'res_2', name: "Réseau VPN Quantique", cost: 150000, multiplier: 5, icon: "🌐", desc: "Clics x5 plus efficaces." },
+        // UNLOCK SKILL 2
+        { id: 'res_skill_2', name: "Le 'Nettoyeur'", cost: 500000, multiplier: 1, icon: "⚡", desc: "Débloque: Incendie 'Accidentel'.", unlocksSkill: 'fire' },
+        { id: 'res_3', name: "Algorithme de 'Lavage'", cost: 1500000, multiplier: 10, icon: "🧼", desc: "Clics x10 plus efficaces." },
+        // UNLOCK SKILL 3
+        { id: 'res_skill_3', name: "Plan 'Sacrifice'", cost: 10000000, multiplier: 1, icon: "⚡", desc: "Débloque: Bouc Émissaire.", unlocksSkill: 'scapegoat' },
+        { id: 'res_4', name: "IA de Corruption", cost: 25000000, multiplier: 20, icon: "🤖", desc: "Clics x20 plus efficaces." }
+    ];
+
+    let gameState;
+    let gameLoopInterval;
+
+    const RANDOM_EVENTS = [
+        { title: "Enquête Journalistique", desc: "Un journaliste fouine trop. Risque +10%", riskDelta: 10, type: "bad" },
+        { title: "Fuite de Données", desc: "Un stagiaire a perdu une clé USB. Risque +15%", riskDelta: 15, type: "bad" },
+        { title: "Panama Papers", desc: "Vos comptes sont exposés ! Risque +30%", riskDelta: 30, type: "bad" },
+        { title: "Lanceur d'Alerte", desc: "Un employé parle trop... Risque +12%", riskDelta: 12, type: "bad" },
+        { title: "Pot-de-vin réussi", desc: "Le maire regarde ailleurs. Risque -10%", riskDelta: -10, type: "good" },
+        { title: "Faille Juridique", desc: "Votre avocat a trouvé un vide juridique. Risque -5%", riskDelta: -5, type: "good" },
+        { title: "Dossier Perdu", desc: "L'administration a perdu votre dossier. Risque -8%", riskDelta: -8, type: "good" }
+    ];
+
+    function initGame() {
+        gameState = {
+            money: 15,
+            risk: 0,
+            defense: 1.0,
+            clickPower: 1, 
+            strikes: 0,
+            researchUnlocked: false,
+            researchesOwned: [],
+            // Cooldowns actuels des skills (0 = prêt)
+            skillCooldowns: {
+                disinfo: 0,
+                fire: 0,
+                scapegoat: 0
+            },
+            buildings: [
+                { id: 0, name: "Stand de Limonade", baseCost: 4, income: 1, count: 0, icon: "🍋" },
+                { id: 1, name: "Laverie Auto", baseCost: 60, income: 4, count: 0, icon: "🧺" },
+                { id: 2, name: "Restaurant Cash-Only", baseCost: 720, income: 44, count: 0, icon: "🍕" },
+                { id: 3, name: "Société Écran", baseCost: 8640, income: 480, count: 0, icon: "🏢" }, 
+                { id: 4, name: "Mine de Crypto", baseCost: 103680, income: 5200, count: 0, icon: "💻" },
+                { id: 5, name: "Banque Offshore", baseCost: 1200000, income: 58000, count: 0, icon: "🏦" }
+            ],
+            lawyerCost: 500,
+            lawyerLevel: 0,
+            isGameOver: false
+        };
+
+        // Reset Skill Unlocks
+        Object.keys(SKILLS_DATA).forEach(key => SKILLS_DATA[key].unlocked = false);
+
+        // Reset UI
+        document.getElementById('research-tab-btn').style.display = 'none';
+        document.getElementById('research-list').innerHTML = "";
+        document.getElementById('activeSkillsContainer').innerHTML = "";
+        
+        let container = document.getElementById('buildings-tab');
+        container.innerHTML = "";
+        gameState.buildings.forEach((b, index) => {
+            let item = document.createElement('div');
+            item.className = 'shop-item disabled';
+            item.id = `building-${index}`;
+            item.onclick = () => buyBuilding(index);
+
+            // Add specific info for Shell Company
+            let extraInfo = "";
+            if (b.id === 3) {
+                extraInfo = `<div style="font-size: 0.7rem; color: var(--tech-color); margin-top: 2px;">🔓 Débloque R&D</div>`;
+            }
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <h4>${b.icon} ${b.name}</h4>
+                    <div class="item-cost"><span class="cost-val">${b.baseCost}</span> $</div>
+                    <div class="item-stats">+${b.income} $/sec</div>
+                    ${extraInfo}
+                </div>
+                <div class="item-count count-val">0</div>
+            `;
+            container.appendChild(item);
+        });
+
+        updateUI();
+    }
+
+    // --- CORE LOOP ---
+    function startGameLoop() {
+        if (gameLoopInterval) clearInterval(gameLoopInterval);
+        gameLoopInterval = setInterval(() => {
+            if (!gameState.isGameOver) gameTick();
+        }, 100);
+    }
+
+    function gameTick() {
+        let incomePerSec = calculateTotalIncome();
+        let incomePerTick = incomePerSec / 10;
+
+        // 1. Ajout Argent
+        gameState.money += incomePerTick;
+
+        // 2. Montée du Risque Passive
+        if (incomePerSec > 0) {
+            let riskIncrease = (Math.log10(incomePerSec + 1) * GAME_CONFIG.baseRiskMultiplier) / gameState.defense;
+            gameState.risk += riskIncrease;
+        }
+
+        // 3. Update Cooldowns
+        updateCooldowns(0.1);
+
+        // 4. Random Events
+        handleRandomEvents();
+
+        // 5. Check Unlock Research
+        if (!gameState.researchUnlocked && gameState.buildings[3].count > 0) {
+            unlockResearchTab();
+        }
+
+        // 6. Clamp & Audit Check
+        if (gameState.risk < 0) gameState.risk = 0;
+        if (gameState.risk >= 100) triggerAudit();
+
+        // 7. Update UI
+        updateUI();
+    }
+
+    // --- LOGIC ---
+
+    function updateCooldowns(deltaTime) {
+        for (let key in gameState.skillCooldowns) {
+            if (gameState.skillCooldowns[key] > 0) {
+                gameState.skillCooldowns[key] -= deltaTime;
+                if (gameState.skillCooldowns[key] < 0) gameState.skillCooldowns[key] = 0;
+            }
+        }
+    }
+
+    function unlockResearchTab() {
+        gameState.researchUnlocked = true;
+        document.getElementById('research-tab-btn').style.display = 'block';
+        showEventToast({ title: "Département R&D", desc: "Nouvelle technologie débloquée !", type: "tech" });
+        initResearchList(); 
+    }
+
+    function calculateTotalIncome() {
+        return gameState.buildings.reduce((acc, b) => acc + (b.income * b.count), 0);
+    }
+
+    function calculateBribeCost() {
+        let incomeBased = calculateTotalIncome() * 30;
+        return Math.max(500, Math.floor(incomeBased));
+    }
+
+    function getBuildingCost(building) {
+        return Math.floor(building.baseCost * Math.pow(GAME_CONFIG.costGrowth, building.count));
+    }
+
+    function getClickRiskReduction() {
+        let income = calculateTotalIncome();
+        let efficiency = GAME_CONFIG.baseRiskReductionPerClick / (1 + (income / GAME_CONFIG.diminishingReturnsFactor));
+        return Math.max(efficiency, 0.01) * gameState.clickPower;
+    }
+
+    function clickShredder(e) {
+        if (gameState.isGameOver) return;
+
+        let baseClickGain = 1 + (calculateTotalIncome() * 0.01);
+        let finalClickGain = baseClickGain * gameState.clickPower;
+        
+        gameState.money += finalClickGain;
+        
+        let reduction = getClickRiskReduction();
+        gameState.risk -= reduction;
+        if (gameState.risk < 0) gameState.risk = 0;
+
+        createFloatingText(e.clientX, e.clientY, `+$${formatMoney(finalClickGain)}`);
+        
+        let btn = document.getElementById('shredderBtn');
+        btn.style.transform = "scale(0.95)";
+        setTimeout(() => btn.style.transform = "scale(1)", 100);
+
+        updateUI();
+    }
+
+    function useSkill(skillKey) {
+        if (gameState.isGameOver) return;
+        
+        let skill = SKILLS_DATA[skillKey];
+        if (!skill.unlocked) return;
+        if (gameState.skillCooldowns[skillKey] > 0) return; // On cooldown
+
+        // Activate Effect
+        gameState.risk -= skill.riskReduction;
+        if (gameState.risk < 0) gameState.risk = 0;
+        
+        // Set Cooldown
+        gameState.skillCooldowns[skillKey] = skill.cooldown;
+
+        // Feedback
+        showEventToast({ 
+            title: skill.name, 
+            desc: `Risque réduit de ${skill.riskReduction}%`, 
+            type: "tech" 
+        });
+        updateUI();
+    }
+
+    function buyBuilding(index) {
+        if (gameState.isGameOver) return;
+        let b = gameState.buildings[index];
+        let cost = getBuildingCost(b);
+        if (gameState.money >= cost) {
+            gameState.money -= cost;
+            b.count++;
+            updateUI();
+        }
+    }
+
+    function buyResearch(index) {
+        if (gameState.isGameOver) return;
+        let res = RESEARCH_DATA[index];
+        if (gameState.researchesOwned.includes(res.id)) return; 
+
+        if (gameState.money >= res.cost) {
+            gameState.money -= res.cost;
+            gameState.researchesOwned.push(res.id);
+            gameState.clickPower *= res.multiplier; 
+            
+            // Check Unlock Skill
+            if (res.unlocksSkill) {
+                SKILLS_DATA[res.unlocksSkill].unlocked = true;
+                initSkillButtons(); // Re-render skills area
+                showEventToast({ title: "Compétence Débloquée", desc: SKILLS_DATA[res.unlocksSkill].name, type: "tech" });
+            }
+
+            initResearchList();
+            updateUI();
+        }
+    }
+
+    function buyLawyer() {
+        if (gameState.isGameOver) return;
+        if (gameState.money >= gameState.lawyerCost) {
+            gameState.money -= gameState.lawyerCost;
+            gameState.lawyerLevel++;
+            gameState.defense += 0.5;
+            gameState.lawyerCost = Math.floor(gameState.lawyerCost * 2.5);
+            updateUI();
+        }
+    }
+
+    function payBribe() {
+        if (gameState.isGameOver) return;
+        let cost = calculateBribeCost();
+        if (gameState.money >= cost) {
+            gameState.money -= cost;
+            gameState.risk -= GAME_CONFIG.bribeRiskReduction;
+            if (gameState.risk < 0) gameState.risk = 0;
+            
+            showEventToast({ 
+                title: "Inspecteur Corrompu", 
+                desc: "Risque réduit de 15%. C'est beau la loyauté.", 
+                type: "bribe" 
+            });
+            updateUI();
+        }
+    }
+
+    function handleRandomEvents() {
+        if (gameState.risk >= 100) return; 
+        if (calculateTotalIncome() < 10) return;
+
+        if (Math.random() < GAME_CONFIG.eventChance) {
+            let event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+            gameState.risk += event.riskDelta;
+            if (gameState.risk < 0) gameState.risk = 0;
+            showEventToast(event);
+        }
+    }
+
+    function triggerAudit() {
+        gameState.risk = 0;
+        gameState.strikes++;
+        updateUI();
+
+        if (gameState.strikes >= GAME_CONFIG.maxStrikes) {
+            gameOver();
+        } else {
+            let penalty = gameState.money * GAME_CONFIG.auditPenalty;
+            gameState.money -= penalty;
+            document.getElementById('auditModal').style.display = 'flex';
+        }
+    }
+
+    function gameOver() {
+        gameState.isGameOver = true;
+        document.getElementById('gameOverModal').style.display = 'flex';
+    }
+
+    function restartGame() {
+        document.getElementById('gameOverModal').style.display = 'none';
+        initGame();
+    }
+
+    function closeAudit() {
+        document.getElementById('auditModal').style.display = 'none';
+        gameState.risk = 0;
+    }
+
+    // --- UI ---
+
+    function showEventToast(event) {
+        let toast = document.getElementById('eventToast');
+        let title = document.getElementById('eventTitle');
+        let desc = document.getElementById('eventDesc');
+
+        title.innerText = event.title;
+        desc.innerText = event.desc;
+        
+        toast.className = `event-toast ${event.type}`;
+        toast.style.display = 'flex';
+
+        if (event.type !== 'tech' && event.type !== 'bribe') {
+            document.getElementById('newsTickerText').innerText = `FLASH INFO: ${event.title} - ${event.desc}`;
+        }
+
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+
+    function updateUI() {
+        document.getElementById('totalMoney').innerText = formatMoney(gameState.money) + " $";
+        document.getElementById('incomePerSec').innerText = formatMoney(calculateTotalIncome());
+        document.getElementById('defenseLevel').innerText = gameState.defense.toFixed(1);
+        document.getElementById('clickPowerDisplay').innerText = formatMoney(gameState.clickPower);
+        
+        let strikeEl = document.getElementById('strikeCount');
+        strikeEl.innerText = gameState.strikes;
+        strikeEl.style.color = gameState.strikes >= 4 ? '#f44336' : (gameState.strikes >= 2 ? '#ff9800' : 'inherit');
+
+        let r = gameState.risk;
+        let bar = document.getElementById('riskBar');
+        bar.style.width = Math.min(r, 100) + "%";
+        document.getElementById('riskValue').innerText = r.toFixed(1);
+        
+        if (r < 50) bar.style.backgroundColor = "var(--risk-low)";
+        else if (r < 80) bar.style.backgroundColor = "var(--risk-med)";
+        else bar.style.backgroundColor = "var(--risk-high)";
+
+        document.getElementById('auditAlert').style.display = (r > 85) ? 'block' : 'none';
+
+        // Update Skill Buttons (Cooldown visuals)
+        updateSkillButtonsUI();
+
+        // Business List
+        gameState.buildings.forEach((b, index) => {
+            let el = document.getElementById(`building-${index}`);
+            if(el) {
+                let currentCost = getBuildingCost(b);
+                el.querySelector('.cost-val').innerText = formatMoney(currentCost);
+                el.querySelector('.count-val').innerText = b.count;
+                if (gameState.money >= currentCost) el.classList.remove('disabled');
+                else el.classList.add('disabled');
+            }
+        });
+
+        // Lawyer & Bribe
+        document.getElementById('lawyer-cost').innerText = formatMoney(gameState.lawyerCost) + " $";
+        document.getElementById('lawyer-stat').innerText = gameState.defense.toFixed(1);
+        let lawyerBtn = document.getElementById('lawyer-upgrade');
+        if (gameState.money >= gameState.lawyerCost) lawyerBtn.classList.remove('disabled');
+        else lawyerBtn.classList.add('disabled');
+
+        let bribeCost = calculateBribeCost();
+        document.getElementById('bribe-cost').innerText = formatMoney(bribeCost) + " $";
+        let bribeBtn = document.getElementById('bribe-action');
+        if (gameState.money >= bribeCost) bribeBtn.classList.remove('disabled');
+        else bribeBtn.classList.add('disabled');
+
+        // Research List
+        if (gameState.researchUnlocked) {
+            RESEARCH_DATA.forEach((res, index) => {
+                let el = document.getElementById(`research-${index}`);
+                if (el && !gameState.researchesOwned.includes(res.id)) {
+                    if (gameState.money >= res.cost) el.classList.remove('disabled');
+                    else el.classList.add('disabled');
+                }
+            });
+        }
+    }
+
+    function initSkillButtons() {
+        let container = document.getElementById('activeSkillsContainer');
+        container.innerHTML = "";
+        
+        for (let key in SKILLS_DATA) {
+            let skill = SKILLS_DATA[key];
+            if (skill.unlocked) {
+                let btn = document.createElement('div');
+                btn.className = 'skill-btn';
+                btn.id = `skill-${key}`;
+                btn.onclick = () => useSkill(key);
+                btn.title = `${skill.name} (-${skill.riskReduction}% Risque)`;
+                
+                btn.innerHTML = `
+                    <div class="skill-icon">${skill.icon}</div>
+                    <div class="skill-label">${skill.name}</div>
+                    <div class="skill-cooldown-overlay" id="skill-cd-${key}"></div>
+                `;
+                container.appendChild(btn);
+            }
+        }
+    }
+
+    function updateSkillButtonsUI() {
+        for (let key in gameState.skillCooldowns) {
+            let skill = SKILLS_DATA[key];
+            if (skill.unlocked) {
+                let btn = document.getElementById(`skill-${key}`);
+                let overlay = document.getElementById(`skill-cd-${key}`);
+                let currentCD = gameState.skillCooldowns[key];
+                
+                if (currentCD > 0) {
+                    btn.classList.add('on-cooldown');
+                    overlay.style.display = 'flex';
+                    // Hauteur proportionnelle
+                    let pct = (currentCD / skill.cooldown) * 100;
+                    overlay.style.height = pct + "%";
+                    overlay.innerText = Math.ceil(currentCD);
+                } else {
+                    btn.classList.remove('on-cooldown');
+                    overlay.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    function createFloatingText(x, y, text) {
+        let el = document.createElement('div');
+        el.classList.add('floating-text');
+        el.innerText = text;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.shop-content').forEach(c => c.style.display = 'none');
+        
+        let btn = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
+        if(btn) btn.classList.add('active');
+        
+        document.getElementById(tabName + '-tab').style.display = 'block';
+    }
+
+    function formatMoney(num) {
+        if (num < 1000) return Math.floor(num);
+        if (num < 1000000) return (num / 1000).toFixed(2) + "k";
+        if (num < 1000000000) return (num / 1000000).toFixed(2) + "M";
+        return (num / 1000000000).toFixed(2) + "B";
+    }
+
+    function initResearchList() {
+        let container = document.getElementById('research-list');
+        container.innerHTML = ""; // Clear existing
+        RESEARCH_DATA.forEach((res, index) => {
+            let isOwned = gameState.researchesOwned.includes(res.id);
+            let item = document.createElement('div');
+            item.className = 'shop-item disabled';
+            if (isOwned) item.classList.add('purchased');
+            item.id = `research-${index}`;
+            item.onclick = () => buyResearch(index);
+            
+            let costDisplay = isOwned ? "ACQUIS" : `${formatMoney(res.cost)} $`;
+            let nameColor = res.unlocksSkill ? "var(--tech-color)" : "inherit";
+            let iconDisplay = res.unlocksSkill ? "⚡" : res.icon;
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <h4 style="color: ${nameColor}">${iconDisplay} ${res.name}</h4>
+                    <div class="item-cost">${costDisplay}</div>
+                    <div class="item-stats">${res.desc}</div>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    // INIT
+    initGame();
+    startGameLoop();
+    document.getElementById('shredderBtn').addEventListener('mousedown', clickShredder);
+
+</script>
+</body>
+</html>
