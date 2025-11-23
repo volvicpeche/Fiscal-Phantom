@@ -15,5 +15,152 @@
     <header>
         <div class="top-stats">
             <div>
+                <div class="money-display" id="totalMoney">0 $</div>
+                <div class="cps-display"><span id="incomePerSec">0</span> $/sec</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.8rem; color: #aaa;">Défense Légale: <span id="defenseLevel">1</span>x</div>
+                <div class="strikes-display">Casier Judiciaire: <span id="strikeCount">0</span>/5</div>
+                <div style="font-size: 0.8rem; color: var(--tech-color);">Puissance Clic: <span
+                        id="clickPowerDisplay">1</span>x</div>
+                <div style="font-size: 0.8rem; cursor: pointer; margin-top: 5px; color: var(--accent);"
+                    onclick="openAchievements()">🏆 Trophées</div>
+            </div>
+        </div>
+
+        <!-- Risk Bar -->
+        <div class="risk-container">
+            <div class="risk-bar" id="riskBar"></div>
+            <div class="risk-text">RISQUE FISCAL: <span id="riskValue">0</span>%</div>
+        </div>
+    </header>
+
+    <!-- News Ticker -->
+    <div class="news-ticker">
+        <div class="news-content" id="newsTickerText">Bienvenue dans le monde de la finance "créative"... Attention aux
+            inspecteurs...</div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-container">
+
+        <!-- Zone Active (Gauche) -->
+        <div class="clicker-zone">
+            <div class="audit-alert" id="auditAlert">⚠️ AUDIT IMMINENT ⚠️</div>
+
+            <button class="shredder-btn" id="shredderBtn">
+                <div class="shredder-icon">📄🗑️</div>
+                <div class="shredder-label">Blanchir & Cacher</div>
+                <div class="shredder-stats" id="shredderStats">-1% Risque</div>
+            </button>
+
+            <!-- Container des Skills Actifs -->
+            <div class="skills-container" id="activeSkillsContainer">
+                <!-- Les boutons de skills apparaîtront ici quand débloqués -->
+            </div>
+
+            <!-- Event Toast Notification -->
+            <div class="event-toast" id="eventToast">
+                <h4 id="eventTitle">Titre Event</h4>
+                <p id="eventDesc">Description de l'event.</p>
+            </div>
+        </div>
+
+        <!-- Zone Shop (Droite) -->
+        <div class="shop-zone">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('buildings')">Business</button>
+                <button class="tab-btn" onclick="switchTab('upgrades')">Défense</button>
+                <button id="research-tab-btn" class="tab-btn" onclick="switchTab('research')">🧬 R&D</button>
+            </div>
+
+            <!-- Liste des Business -->
+            <div id="buildings-tab" class="shop-content">
+                <!-- Les items seront générés par JS -->
+            </div>
+
+            <!-- Liste des Upgrades (Avocats & Pots de vin) -->
+            <div id="upgrades-tab" class="shop-content" style="display: none;">
+                <!-- Avocats -->
+                <div class="shop-item" id="lawyer-upgrade" onclick="buyLawyer()">
+                    <div class="item-info">
+                        <h4>Avocat Véreux</h4>
+                        <div class="item-cost" id="lawyer-cost">500 $</div>
+                        <div class="item-stats">Ralentit la jauge de risque (Actuel: /<span id="lawyer-stat">1</span>)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pot-de-vin d'urgence -->
+                <div class="shop-item bribe-item" id="bribe-action" onclick="payBribe()">
+                    <div class="item-info">
+                        <h4>🤝 Pot-de-vin Express</h4>
+                        <div class="item-cost" id="bribe-cost">??? $</div>
+                        <div class="item-stats">Réduit instantanément le risque de <strong>15%</strong>.</div>
+                        <div style="font-size: 0.7rem; color: #888; font-style: italic;">"J'ai cru voir un billet
+                            tomber..."</div>
+                    </div>
+                </div>
+
+                <!-- Prestige -->
+                <div class="shop-item" id="prestige-upgrade" onclick="prestigeGame()"
+                    style="display: none; border-color: var(--accent); background: #222;">
+                    <div class="item-info">
+                        <h4 style="color: var(--accent);">✈️ Exil Fiscal</h4>
+                        <div class="item-stats">Fuyez avec votre fortune. Reset le jeu avec bonus.</div>
+                        <div class="item-stats" id="prestige-gain">Gain: 0 Influence</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglet Recherche -->
+            <div id="research-tab" class="shop-content" style="display: none;">
+                <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
+                    Les technologies R&D débloquent des bonus passifs et des <strong>compétences actives</strong>.
+                </div>
+                <div id="research-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Audit -->
+    <div class="modal-overlay" id="auditModal">
+        <div class="modal">
+            <h2>👮 CONTRÔLE FISCAL ! 👮</h2>
+            <p>Ils ont trouvé vos livres de comptes !</p>
+            <p>L'État a saisi <strong>30%</strong> de votre argent sale.</p>
+            <p style="color: #aaa; font-style: italic;">"Nul n'est censé ignorer la loi..."</p>
+            <p style="color: var(--risk-high); font-weight: bold;">Ceci est ajouté à votre Casier Judiciaire.</p>
+            <button onclick="closeAudit()">Payer l'amende et continuer</button>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal" style="border: 4px solid #000;">
+            <h2 style="color: #f44336;">🏛️ FAILLITE ET PRISON 🏛️</h2>
+            <p>Après <strong>5 redressements fiscaux</strong> majeurs, la justice a tranché.</p>
+            <p>Vos biens sont saisis, votre empire est démantelé, et vous finissez derrière les barreaux.</p>
+            <br>
+            <p style="font-style: italic; color: #aaa;">"La cupidité est un péché, mais se faire prendre est un crime."
+            </p>
+            <button onclick="restartGame()">Recommencer une nouvelle vie</button>
+        </div>
+    </div>
+
+    <!-- Modal Achievements -->
+    <div class="modal-overlay" id="achievementsModal">
+        <div class="modal" style="max-width: 600px; width: 90%;">
+            <h2>🏆 Succès Débloqués 🏆</h2>
+            <div id="achievementsList"
+                style="max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px;"></div>
+            <button onclick="closeAchievements()">Fermer</button>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
 
 </html>
