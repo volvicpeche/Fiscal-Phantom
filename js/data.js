@@ -64,7 +64,7 @@ const BLACK_MARKET_DATA = [
     { id: 'shell_corp', category: 'income', name: "Sociétés Écrans", desc: "Les bâtiments coûtent 5% moins cher.", cost: 12, icon: "🏢", max: 5 },
 
     // UTILITY
-    { id: 'botnet', category: 'utility', name: "Botnet Russe", desc: "Auto-clic 5 fois par seconde.", cost: 25, icon: "🤖", max: 1 },
+    { id: 'botnet', category: 'utility', name: "Botnet Russe", desc: "Auto-clic +2/sec par niveau.", cost: 25, icon: "🤖", max: 50 },
     { id: 'marketing', category: 'utility', name: "Propagande", desc: "Influence gagnée +10% lors du Prestige.", cost: 20, icon: "📢", max: 5 }
 ];
 
@@ -92,9 +92,19 @@ const SYNDICATE_DATA = [
     }
 ];
 
+const COUNTRIES_DATA = [
+    { id: 0, name: "Îles Caïmans", flag: "🇰🇾", incomeMult: 1.0, riskMult: 1.0, costMult: 1.0, req: 0, desc: "Le bac à sable des débutants." },
+    { id: 1, name: "Panama", flag: "🇵🇦", incomeMult: 1.5, riskMult: 1.2, costMult: 1.2, req: 1000000000, desc: "Canal, chapeaux et comptes secrets." }, // 1B
+    { id: 2, name: "Suisse", flag: "🇨🇭", incomeMult: 2.5, riskMult: 1.5, costMult: 1.5, req: 50000000000, desc: "Le coffre-fort des Alpes." }, // 50B
+    { id: 3, name: "Luxembourg", flag: "🇱🇺", incomeMult: 4.0, riskMult: 2.0, costMult: 2.0, req: 1000000000000, desc: "Petit pays, gros secrets." }, // 1T
+    { id: 4, name: "Singapour", flag: "🇸🇬", incomeMult: 6.0, riskMult: 3.0, costMult: 3.0, req: 25000000000000, desc: "La Suisse de l'Asie." }, // 25T
+    { id: 5, name: "Irlande", flag: "🇮🇪", incomeMult: 10.0, riskMult: 4.0, costMult: 4.0, req: 500000000000000, desc: "Le trèfle à quatre feuilles fiscales." }, // 500T
+    { id: 6, name: "Dubaï", flag: "🇦🇪", incomeMult: 20.0, riskMult: 5.0, costMult: 5.0, req: 10000000000000000, desc: "L'or noir et l'argent blanchi." } // 10Q
+];
+
 const SOVEREIGNTY_CONFIG = {
-    costMoney: 100000000000, // 100 Billion
-    costInfluence: 5000,
+    costMoney: 1000000000000000000, // 1 Quintillion (End Game)
+    costInfluence: 50000,
     name: "Projet Souveraineté",
     desc: "Achetez une île nation. Devenez la loi. Gagnez le jeu."
 };

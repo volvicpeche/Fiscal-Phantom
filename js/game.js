@@ -14,6 +14,7 @@ function initGame() {
         achievements: [], // Array of IDs
         blackMarketUpgrades: {}, // { id: level }
         syndicateManagers: {}, // { id: level } - CHANGED FROM ARRAY TO OBJECT
+        currentCountryIndex: 0, // NEW: Track current country
 
         lifetimeEarnings: 0,
         prestige: {
@@ -100,7 +101,8 @@ function gameTick() {
 
     // 2. Montée du Risque Passive
     if (incomePerSec > 0) {
-        let baseRisk = GAME_CONFIG.baseRiskMultiplier;
+        let country = COUNTRIES_DATA[gameState.currentCountryIndex];
+        let baseRisk = GAME_CONFIG.baseRiskMultiplier * country.riskMult;
 
         // Effect: Lobbying (Reduce base risk)
         let lobbyingLevel = gameState.blackMarketUpgrades['lobbying'] || 0;
@@ -113,11 +115,18 @@ function gameTick() {
     }
 
     // Effect: Botnet (Auto-click)
-    if (gameState.blackMarketUpgrades['botnet'] > 0) {
+    let botnetLevel = gameState.blackMarketUpgrades['botnet'] || 0;
+    if (botnetLevel > 0) {
         if (!gameState.botnetTimer) gameState.botnetTimer = 0;
         gameState.botnetTimer++;
-        if (gameState.botnetTimer >= 2) {
-            clickShredder({ clientX: 0, clientY: 0 }, true);
+        // 5 ticks = 0.5s. We want 2 clicks/sec per level?
+        // Let's say it clicks every second (10 ticks), and adds (level * 2) clicks worth of money?
+        // Or simpler: It clicks once every X ticks.
+        // Let's do: Every 10 ticks (1 sec), it triggers (botnetLevel * 2) clicks.
+        if (gameState.botnetTimer >= 10) {
+            let clicks = botnetLevel * 2;
+            // We simulate one click event but multiply the gain
+            clickShredder({ clientX: 0, clientY: 0 }, true, clicks);
             gameState.botnetTimer = 0;
         }
     }
@@ -170,6 +179,7 @@ function loadGame() {
             if (saved.lawyerCost !== undefined) gameState.lawyerCost = saved.lawyerCost;
             if (saved.lawyerLevel !== undefined) gameState.lawyerLevel = saved.lawyerLevel;
             if (saved.lifetimeEarnings !== undefined) gameState.lifetimeEarnings = saved.lifetimeEarnings;
+            if (saved.currentCountryIndex !== undefined) gameState.currentCountryIndex = saved.currentCountryIndex;
 
             // Restore Prestige
             if (saved.prestige) {
@@ -271,8 +281,12 @@ function unlockResearchTab() {
 }
 
 function calculateTotalIncome() {
+    let country = COUNTRIES_DATA[gameState.currentCountryIndex];
     let baseIncome = gameState.buildings.reduce((acc, b) => acc + (b.income * b.count), 0);
     let prestigeMult = 1 + (gameState.prestige.currency * gameState.prestige.multiplier);
+
+    // Country Multiplier
+    baseIncome *= country.incomeMult;
 
     // Effect: Tax Haven (Passive Income Bonus)
     let taxHavenLevel = gameState.blackMarketUpgrades['tax_haven'] || 0;
@@ -289,7 +303,11 @@ function calculateBribeCost() {
 }
 
 function getBuildingCost(building) {
+    let country = COUNTRIES_DATA[gameState.currentCountryIndex];
     let cost = Math.floor(building.baseCost * Math.pow(GAME_CONFIG.costGrowth, building.count));
+
+    // Country Multiplier
+    cost *= country.costMult;
 
     // Effect: Shell Corp (Building Cost Reduction)
     let shellLevel = gameState.blackMarketUpgrades['shell_corp'] || 0;
@@ -306,11 +324,11 @@ function getClickRiskReduction() {
     return Math.max(efficiency, 0.01) * gameState.clickPower;
 }
 
-function clickShredder(e, silent = false) {
+function clickShredder(e, silent = false, multiplier = 1) {
     if (gameState.isGameOver) return;
 
     let baseClickGain = 1 + (calculateTotalIncome() * 0.01);
-    let finalClickGain = baseClickGain * gameState.clickPower;
+    let finalClickGain = baseClickGain * gameState.clickPower * multiplier;
 
     gameState.money += finalClickGain;
     gameState.lifetimeEarnings += finalClickGain;
@@ -527,17 +545,23 @@ function restartGame() {
     initGame();
 }
 
-function prestigeGame() {
-    let threshold = 1000000000; // 1 Billion
-    if (gameState.lifetimeEarnings < threshold) return;
+function travelToNextCountry() {
+    let currentCountry = COUNTRIES_DATA[gameState.currentCountryIndex];
+    let nextCountry = COUNTRIES_DATA[gameState.currentCountryIndex + 1];
 
-    let earnedPoints = Math.floor(gameState.lifetimeEarnings / threshold);
-    let currentPoints = gameState.prestige.currency;
+    if (!nextCountry) return; // Max level reached (or handle differently)
 
-    if (earnedPoints <= currentPoints) return;
+    // Check Requirement
+    if (gameState.lifetimeEarnings < nextCountry.req) return;
 
-    let newPoints = earnedPoints - currentPoints;
+    // Calculate Prestige Points to gain (based on earnings in THIS run)
+    // Formula: Sqrt(LifetimeEarnings / 1M) ? Or keep linear?
+    // Let's keep the old formula for now but adapted
+    let threshold = 1000000000; // 1 Billion base
     let pointsToGain = Math.floor(gameState.lifetimeEarnings / threshold);
+
+    // Minimum 1 point if you qualify for next country?
+    if (pointsToGain < 1) pointsToGain = 1;
 
     // Effect: Marketing (More Influence)
     let marketingLevel = gameState.blackMarketUpgrades['marketing'] || 0;
@@ -545,10 +569,14 @@ function prestigeGame() {
         pointsToGain = Math.floor(pointsToGain * (1 + (marketingLevel * 0.10)));
     }
 
-    if (confirm(`Voulez-vous fuir en "Exil Fiscal" ?\nVous perdrez tout votre argent, bâtiments et recherches.\nVous gagnerez ${pointsToGain} points d'Influence (+${pointsToGain * 10}% bonus de revenus).`)) {
+    if (confirm(`Prêt à fuir vers ${nextCountry.name} ?\n\nNouveau Départ:\n- Revenus x${nextCountry.incomeMult}\n- Risque x${nextCountry.riskMult}\n\nVous gardez:\n- Améliorations Marché Noir\n- Managers\n- Influence (+${pointsToGain})`)) {
 
-        // Save Black Market Upgrades
+        // Save Persistent Data
         let savedUpgrades = { ...gameState.blackMarketUpgrades };
+        let savedManagers = { ...gameState.syndicateManagers };
+        let savedAchievements = [...gameState.achievements];
+        let savedPrestige = { ...gameState.prestige };
+        savedPrestige.currency += pointsToGain;
 
         // Effect: Nepotism (Keep Lawyer Level)
         let keepLawyer = (savedUpgrades['nepotism'] > 0);
@@ -563,7 +591,10 @@ function prestigeGame() {
             moneyKept = gameState.money * (offshoreLevel * 0.10);
         }
 
-        // Reset Game
+        // Increment Country
+        let nextIndex = gameState.currentCountryIndex + 1;
+
+        // Reset Game State
         gameState.money = 15 + moneyKept;
         gameState.risk = 0;
         gameState.buildings.forEach(b => b.count = 0);
@@ -571,24 +602,28 @@ function prestigeGame() {
         gameState.researchUnlocked = false;
         gameState.clickPower = 1;
         gameState.strikes = 0;
-        gameState.syndicateManagers = {}; // Reset Managers
+
+        // Restore Persistent
+        gameState.currentCountryIndex = nextIndex;
+        gameState.syndicateManagers = savedManagers;
+        gameState.blackMarketUpgrades = savedUpgrades;
+        gameState.achievements = savedAchievements;
+        gameState.prestige = savedPrestige;
 
         gameState.defense = savedDefense;
         gameState.lawyerLevel = savedLawyerLevel;
         gameState.lawyerCost = savedLawyerCost;
 
         gameState.skillCooldowns = { disinfo: 0, fire: 0, scapegoat: 0 };
-        gameState.blackMarketUpgrades = savedUpgrades; // Restore upgrades
-
-        // Reset Run Earnings
-        gameState.lifetimeEarnings = 0;
-
-        // Add Prestige
-        gameState.prestige.currency += pointsToGain;
+        gameState.lifetimeEarnings = 0; // Reset for new country run
 
         saveGame();
-        initGameUI(); // Reset UI
-        showEventToast({ title: "Exil Fiscal Réussi", desc: "Vous repartez de zéro, mais avec des amis haut placés.", type: "good" });
+        initGameUI(); // Full UI Reset
+        showEventToast({
+            title: `Bienvenue au ${nextCountry.name}`,
+            desc: "Nouvelle juridiction, nouvelles opportunités.",
+            type: "good"
+        });
     }
 }
 
@@ -597,7 +632,8 @@ function buyBlackMarketUpgrade(id) {
     if (!upgrade) return;
 
     let currentLevel = gameState.blackMarketUpgrades[id] || 0;
-    if (currentLevel >= upgrade.max) return;
+    // Check max level (if max is defined)
+    if (upgrade.max && currentLevel >= upgrade.max) return;
 
     if (gameState.prestige.currency >= upgrade.cost) {
         gameState.prestige.currency -= upgrade.cost;

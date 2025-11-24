@@ -34,6 +34,14 @@ function initGameUI() {
     });
 
     initSyndicateList();
+
+    // Country Header
+    let header = document.querySelector('header h1');
+    if (header) {
+        let country = COUNTRIES_DATA[gameState.currentCountryIndex];
+        header.innerHTML = `Fiscal Phantom <span style="font-size: 0.6em; color: #aaa;">| ${country.flag} ${country.name}</span>`;
+    }
+
     updateUI();
 }
 
@@ -113,11 +121,23 @@ function updateUI() {
     else bribeBtn.classList.add('disabled');
 
     // Prestige
+    // Travel / Prestige
     let prestigeBtn = document.getElementById('prestige-upgrade');
-    if (gameState.lifetimeEarnings >= 1000000000) {
+    let currentCountry = COUNTRIES_DATA[gameState.currentCountryIndex];
+    let nextCountry = COUNTRIES_DATA[gameState.currentCountryIndex + 1];
+
+    if (nextCountry) {
+        // Show button if we are close or if we unlocked it?
+        // Let's show it always but disabled if not met, so player sees the goal.
         prestigeBtn.style.display = 'flex';
-        let potentialPoints = Math.floor(gameState.lifetimeEarnings / 1000000000);
-        let gain = potentialPoints - gameState.prestige.currency;
+
+        let reqMet = gameState.lifetimeEarnings >= nextCountry.req;
+
+        // Calculate Influence Gain
+        let threshold = 1000000000;
+        let potentialPoints = Math.floor(gameState.lifetimeEarnings / threshold);
+        let gain = potentialPoints; // Simplified for display
+        if (gain < 1) gain = 1; // Min 1
 
         // Effect: Marketing
         let marketingLevel = gameState.blackMarketUpgrades['marketing'] || 0;
@@ -125,14 +145,19 @@ function updateUI() {
             gain = Math.floor(gain * (1 + (marketingLevel * 0.10)));
         }
 
-        if (gain > 0) {
-            document.getElementById('prestige-gain').innerText = `Gain: ${gain} Influence (+${gain * 10}%)`;
+        let btnText = `Fuite vers ${nextCountry.name}`;
+        let btnDesc = `Requis: ${formatMoney(nextCountry.req)} $`;
+
+        if (reqMet) {
             prestigeBtn.classList.remove('disabled');
+            prestigeBtn.onclick = travelToNextCountry; // Update handler
+            document.getElementById('prestige-gain').innerHTML = `${btnText} <br> <span style="font-size:0.8em; color:var(--good-color)">Gain: ${gain} Influence</span>`;
         } else {
-            document.getElementById('prestige-gain').innerText = `Pas assez de gains pour plus d'Influence`;
             prestigeBtn.classList.add('disabled');
+            document.getElementById('prestige-gain').innerHTML = `${btnText} <br> <span style="font-size:0.8em; color:var(--risk-high)">${btnDesc}</span>`;
         }
     } else {
+        // Max Level Reached
         prestigeBtn.style.display = 'none';
     }
 
@@ -389,7 +414,10 @@ function openBlackMarket() {
             };
 
             let costText = isMaxed ? "MAX" : `${upg.cost} Infl.`;
-            let progressPct = (currentLevel / upg.max) * 100;
+            // Handle scalable max (like Botnet with max 50)
+            let maxDisplay = upg.max > 10 ? upg.max : upg.max; // Just to be safe
+
+            let progressPct = (currentLevel / maxDisplay) * 100;
 
             item.innerHTML = `
                 <div class="bm-row-top">
