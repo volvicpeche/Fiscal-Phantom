@@ -75,8 +75,8 @@
                 <button class="tab-btn active" onclick="switchTab('buildings')">Business</button>
                 <button class="tab-btn" onclick="switchTab('upgrades')">Défense</button>
                 <button id="research-tab-btn" class="tab-btn" onclick="switchTab('research')">🧬 R&D</button>
-                <button id="stock-tab-btn" class="tab-btn" onclick="switchTab('stock')" style="display: none;">📈
-                    Bourse</button>
+                <button id="syndicate-tab-btn" class="tab-btn" onclick="switchTab('syndicate')"
+                    style="display: none;">🕴️ Syndicat</button>
             </div>
 
             <!-- Liste des Business -->
@@ -126,12 +126,12 @@
                 <div id="research-list"></div>
             </div>
 
-            <!-- Onglet Bourse -->
-            <div id="stock-tab" class="shop-content" style="display: none;">
+            <!-- Onglet Syndicat -->
+            <div id="syndicate-tab" class="shop-content" style="display: none;">
                 <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
-                    Achetez bas, vendez haut. Attention à la volatilité !
+                    Engagez des professionnels pour automatiser vos affaires sales.
                 </div>
-                <div id="stock-list"></div>
+                <div id="syndicate-list"></div>
             </div>
         </div>
     </div>
@@ -173,12 +173,11 @@
 
     <!-- Modal Black Market -->
     <div class="modal-overlay" id="blackMarketModal">
-        <div class="modal" style="max-width: 600px; width: 90%; border-color: #9c27b0;">
+        <div class="modal" id="blackMarketContent">
             <h2 style="color: #9c27b0;">🕶️ Marché Noir 🕶️</h2>
             <p>Dépensez votre Influence pour des avantages permanents.</p>
             <div style="margin-bottom: 10px; font-weight: bold;">Influence: <span id="bm-influence">0</span></div>
-            <div id="blackMarketList"
-                style="max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px;"></div>
+            <div id="blackMarketList"></div>
             <button onclick="closeBlackMarket()">Fermer</button>
         </div>
     </div>

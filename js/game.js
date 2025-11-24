@@ -13,12 +13,7 @@ function initGame() {
         researchesOwned: [],
         achievements: [], // Array of IDs
         blackMarketUpgrades: {}, // { id: level }
-
-        // Stock Market
-        stockMarketUnlocked: false,
-        stocks: {}, // { symbol: amount }
-        stockPrices: {}, // { symbol: price }
-        stockTrends: {}, // { symbol: 'up' | 'down' }
+        syndicateManagers: {}, // { id: level } - CHANGED FROM ARRAY TO OBJECT
 
         lifetimeEarnings: 0,
         prestige: {
@@ -47,15 +42,8 @@ function initGame() {
         isGameOver: false,
         passiveAccumulator: 0,
         passiveTimer: 0,
-        stockTimer: 0
+        syndicateTickers: {} // { id: currentTick }
     };
-
-    // Initialize Stocks
-    STOCKS_DATA.forEach(s => {
-        gameState.stocks[s.symbol] = 0;
-        gameState.stockPrices[s.symbol] = s.basePrice;
-        gameState.stockTrends[s.symbol] = 'neutral';
-    });
 
     // Reset Skill Unlocks
     Object.keys(SKILLS_DATA).forEach(key => SKILLS_DATA[key].unlocked = false);
@@ -145,32 +133,17 @@ function gameTick() {
         unlockResearchTab();
     }
 
-    // 6. Check Unlock Stock Market
-    if (!gameState.stockMarketUnlocked) {
-        let insider = gameState.blackMarketUpgrades['insider'] || 0;
-        if (insider > 0 || gameState.lifetimeEarnings >= 10000000) {
-            unlockStockMarket();
-        }
-    }
+    // 6. Syndicate Logic (Run every tick, check intervals)
+    runSyndicateLogic();
 
-    // 7. Update Stock Market (Every 1s)
-    if (gameState.stockMarketUnlocked) {
-        if (!gameState.stockTimer) gameState.stockTimer = 0;
-        gameState.stockTimer++;
-        if (gameState.stockTimer >= 10) {
-            updateStockMarket();
-            gameState.stockTimer = 0;
-        }
-    }
-
-    // 8. Check Achievements
+    // 7. Check Achievements
     checkAchievements();
 
-    // 9. Clamp & Audit Check
+    // 8. Clamp & Audit Check
     if (gameState.risk < 0) gameState.risk = 0;
     if (gameState.risk >= 100) triggerAudit();
 
-    // 10. Update UI
+    // 9. Update UI
     updateUI();
 }
 
@@ -197,7 +170,6 @@ function loadGame() {
             if (saved.lawyerCost !== undefined) gameState.lawyerCost = saved.lawyerCost;
             if (saved.lawyerLevel !== undefined) gameState.lawyerLevel = saved.lawyerLevel;
             if (saved.lifetimeEarnings !== undefined) gameState.lifetimeEarnings = saved.lifetimeEarnings;
-            if (saved.stockMarketUnlocked !== undefined) gameState.stockMarketUnlocked = saved.stockMarketUnlocked;
 
             // Restore Prestige
             if (saved.prestige) {
@@ -209,8 +181,19 @@ function loadGame() {
             if (saved.skillCooldowns) gameState.skillCooldowns = saved.skillCooldowns;
             if (saved.achievements) gameState.achievements = saved.achievements;
             if (saved.blackMarketUpgrades) gameState.blackMarketUpgrades = saved.blackMarketUpgrades;
-            if (saved.stocks) gameState.stocks = saved.stocks;
-            if (saved.stockPrices) gameState.stockPrices = saved.stockPrices;
+
+            // Restore Syndicate (Handle migration from Array to Object if needed)
+            if (saved.syndicateManagers) {
+                if (Array.isArray(saved.syndicateManagers)) {
+                    // Migration: Convert Array to Object { id: 1 }
+                    gameState.syndicateManagers = {};
+                    saved.syndicateManagers.forEach(id => {
+                        gameState.syndicateManagers[id] = 1;
+                    });
+                } else {
+                    gameState.syndicateManagers = saved.syndicateManagers;
+                }
+            }
 
             // Restore Buildings
             if (saved.buildings) {
@@ -287,58 +270,16 @@ function unlockResearchTab() {
     initResearchList();
 }
 
-function unlockStockMarket() {
-    gameState.stockMarketUnlocked = true;
-    document.getElementById('stock-tab-btn').style.display = 'block';
-    showEventToast({ title: "Wall Street", desc: "Marché Boursier Débloqué !", type: "tech" });
-    initStockList();
-}
-
-function updateStockMarket() {
-    STOCKS_DATA.forEach(stock => {
-        let currentPrice = gameState.stockPrices[stock.symbol];
-        let change = (Math.random() - 0.5) * 2 * stock.volatility * currentPrice;
-
-        // Random Market Events (Small chance for big jump/drop)
-        if (Math.random() < 0.05) change *= 3;
-
-        let newPrice = currentPrice + change;
-        if (newPrice < 1) newPrice = 1; // Minimum price
-
-        gameState.stockPrices[stock.symbol] = newPrice;
-        gameState.stockTrends[stock.symbol] = change >= 0 ? 'up' : 'down';
-    });
-}
-
-function buyStock(symbol, amount) {
-    if (gameState.isGameOver) return;
-    let price = gameState.stockPrices[symbol];
-    let cost = price * amount;
-
-    if (gameState.money >= cost) {
-        gameState.money -= cost;
-        gameState.stocks[symbol] = (gameState.stocks[symbol] || 0) + amount;
-        updateUI();
-    }
-}
-
-function sellStock(symbol, amount) {
-    if (gameState.isGameOver) return;
-    let owned = gameState.stocks[symbol] || 0;
-    if (owned >= amount) {
-        let price = gameState.stockPrices[symbol];
-        let gain = price * amount;
-
-        gameState.stocks[symbol] -= amount;
-        gameState.money += gain;
-        gameState.lifetimeEarnings += gain; // Capital gains count towards lifetime? Yes.
-        updateUI();
-    }
-}
-
 function calculateTotalIncome() {
     let baseIncome = gameState.buildings.reduce((acc, b) => acc + (b.income * b.count), 0);
     let prestigeMult = 1 + (gameState.prestige.currency * gameState.prestige.multiplier);
+
+    // Effect: Tax Haven (Passive Income Bonus)
+    let taxHavenLevel = gameState.blackMarketUpgrades['tax_haven'] || 0;
+    if (taxHavenLevel > 0) {
+        prestigeMult *= (1 + (taxHavenLevel * 0.10));
+    }
+
     return baseIncome * prestigeMult;
 }
 
@@ -348,7 +289,15 @@ function calculateBribeCost() {
 }
 
 function getBuildingCost(building) {
-    return Math.floor(building.baseCost * Math.pow(GAME_CONFIG.costGrowth, building.count));
+    let cost = Math.floor(building.baseCost * Math.pow(GAME_CONFIG.costGrowth, building.count));
+
+    // Effect: Shell Corp (Building Cost Reduction)
+    let shellLevel = gameState.blackMarketUpgrades['shell_corp'] || 0;
+    if (shellLevel > 0) {
+        cost *= (1 - (shellLevel * 0.05));
+    }
+
+    return Math.floor(cost);
 }
 
 function getClickRiskReduction() {
@@ -442,8 +391,16 @@ function buyResearch(index) {
 
 function buyLawyer() {
     if (gameState.isGameOver) return;
-    if (gameState.money >= gameState.lawyerCost) {
-        gameState.money -= gameState.lawyerCost;
+
+    // Effect: Lawyer Friend (Cheaper Lawyers)
+    let discount = 0;
+    let friendLevel = gameState.blackMarketUpgrades['lawyer_friend'] || 0;
+    if (friendLevel > 0) discount = friendLevel * 0.10;
+
+    let finalCost = gameState.lawyerCost * (1 - discount);
+
+    if (gameState.money >= finalCost) {
+        gameState.money -= finalCost;
         gameState.lawyerLevel++;
         gameState.defense += 0.5;
         gameState.lawyerCost = Math.floor(gameState.lawyerCost * 2.5);
@@ -466,6 +423,90 @@ function payBribe() {
             type: "bribe"
         });
         updateUI();
+    }
+}
+
+function hireManager(managerId) {
+    if (gameState.isGameOver) return;
+
+    let manager = SYNDICATE_DATA.find(m => m.id === managerId);
+    if (!manager) return;
+
+    let currentLevel = gameState.syndicateManagers[managerId] || 0;
+    if (currentLevel >= manager.maxLevel) return;
+
+    // Cost Calculation: Base * (1.5 ^ Level)
+    let cost = Math.floor(manager.baseCost * Math.pow(1.5, currentLevel));
+
+    if (gameState.money >= cost) {
+        gameState.money -= cost;
+        gameState.syndicateManagers[managerId] = currentLevel + 1;
+
+        showEventToast({ title: "Syndicat", desc: `${manager.name} amélioré (Niv. ${currentLevel + 1}) !`, type: "tech" });
+        updateUI();
+        saveGame();
+    }
+}
+
+function runSyndicateLogic() {
+    if (gameState.isGameOver) return;
+
+    for (let id in gameState.syndicateManagers) {
+        let level = gameState.syndicateManagers[id];
+        if (level <= 0) continue;
+
+        let manager = SYNDICATE_DATA.find(m => m.id === id);
+        if (!manager) continue;
+
+        // Init ticker if needed
+        if (!gameState.syndicateTickers[id]) gameState.syndicateTickers[id] = 0;
+
+        gameState.syndicateTickers[id]++;
+
+        let interval = manager.getInterval(level);
+
+        if (gameState.syndicateTickers[id] >= interval) {
+            // Trigger Action
+            let actionSuccess = false;
+
+            if (manager.type === 'auto_risk') {
+                if (gameState.risk > 50) {
+                    clickShredder({ clientX: 0, clientY: 0 }, true);
+                    actionSuccess = true;
+                }
+            } else if (manager.type === 'auto_lawyer') {
+                let discount = 0;
+                let friendLevel = gameState.blackMarketUpgrades['lawyer_friend'] || 0;
+                if (friendLevel > 0) discount = friendLevel * 0.10;
+                let finalCost = gameState.lawyerCost * (1 - discount);
+
+                if (gameState.money >= finalCost) {
+                    buyLawyer();
+                    actionSuccess = true;
+                }
+            } else if (manager.type === 'auto_skill') {
+                if (gameState.risk > 80) {
+                    for (let key in SKILLS_DATA) {
+                        if (SKILLS_DATA[key].unlocked && gameState.skillCooldowns[key] <= 0) {
+                            useSkill(key);
+                            actionSuccess = true;
+                            break;
+                        }
+                    }
+                }
+            } else if (manager.type === 'auto_bribe') {
+                if (gameState.risk > 90) {
+                    let cost = calculateBribeCost();
+                    if (gameState.money >= cost) {
+                        payBribe();
+                        actionSuccess = true;
+                    }
+                }
+            }
+
+            // Reset ticker only if action attempted (or always? Let's say always to keep rhythm)
+            gameState.syndicateTickers[id] = 0;
+        }
     }
 }
 
@@ -524,6 +565,12 @@ function prestigeGame() {
     let newPoints = earnedPoints - currentPoints;
     let pointsToGain = Math.floor(gameState.lifetimeEarnings / threshold);
 
+    // Effect: Marketing (More Influence)
+    let marketingLevel = gameState.blackMarketUpgrades['marketing'] || 0;
+    if (marketingLevel > 0) {
+        pointsToGain = Math.floor(pointsToGain * (1 + (marketingLevel * 0.10)));
+    }
+
     if (confirm(`Voulez-vous fuir en "Exil Fiscal" ?\nVous perdrez tout votre argent, bâtiments et recherches.\nVous gagnerez ${pointsToGain} points d'Influence (+${pointsToGain * 10}% bonus de revenus).`)) {
 
         // Save Black Market Upgrades
@@ -550,6 +597,7 @@ function prestigeGame() {
         gameState.researchUnlocked = false;
         gameState.clickPower = 1;
         gameState.strikes = 0;
+        gameState.syndicateManagers = {}; // Reset Managers
 
         gameState.defense = savedDefense;
         gameState.lawyerLevel = savedLawyerLevel;
@@ -557,9 +605,6 @@ function prestigeGame() {
 
         gameState.skillCooldowns = { disinfo: 0, fire: 0, scapegoat: 0 };
         gameState.blackMarketUpgrades = savedUpgrades; // Restore upgrades
-        gameState.stockMarketUnlocked = (savedUpgrades['insider'] > 0); // Keep stock market if insider
-        gameState.stocks = {}; // Reset stocks? Yes, usually.
-        STOCKS_DATA.forEach(s => gameState.stocks[s.symbol] = 0);
 
         // Reset Run Earnings
         gameState.lifetimeEarnings = 0;
@@ -585,7 +630,9 @@ function buyBlackMarketUpgrade(id) {
         gameState.blackMarketUpgrades[id] = currentLevel + 1;
 
         showEventToast({ title: "Marché Noir", desc: `Acheté: ${upgrade.name}`, type: "tech" });
-        updateUI(); // Need to update Black Market UI
+
+        openBlackMarket();
+        updateUI();
         saveGame();
     }
 }

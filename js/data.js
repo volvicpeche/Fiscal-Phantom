@@ -1,13 +1,13 @@
 // --- CONFIGURATION & DATA ---
 const GAME_CONFIG = {
-    baseRiskMultiplier: 0.05,
+    baseRiskMultiplier: 0.08, // Increased from 0.05
     baseRiskReductionPerClick: 1.0,
-    auditPenalty: 0.30,
-    costGrowth: 1.15,
+    auditPenalty: 0.50, // Increased from 0.30
+    costGrowth: 1.25, // Increased from 1.15
     eventChance: 0.005,
     diminishingReturnsFactor: 200,
     bribeRiskReduction: 15,
-    maxStrikes: 5
+    maxStrikes: 3 // Reduced from 5
 };
 
 // Skills Actifs (Définitions)
@@ -20,14 +20,14 @@ const SKILLS_DATA = {
 const RESEARCH_DATA = [
     { id: 'res_1', name: "Déchiqueteuse Industrielle", cost: 15000, multiplier: 2, icon: "🏭", desc: "Clics x2 plus efficaces." },
     // UNLOCK SKILL 1
-    { id: 'res_skill_1', name: "Opération 'Écran de Fumée'", cost: 50000, multiplier: 1, icon: "⚡", desc: "Débloque: Campagne de Désinformation.", unlocksSkill: 'disinfo' },
-    { id: 'res_2', name: "Réseau VPN Quantique", cost: 150000, multiplier: 5, icon: "🌐", desc: "Clics x5 plus efficaces." },
+    { id: 'res_skill_1', name: "Opération 'Écran de Fumée'", cost: 75000, multiplier: 1, icon: "⚡", desc: "Débloque: Campagne de Désinformation.", unlocksSkill: 'disinfo' },
+    { id: 'res_2', name: "Réseau VPN Quantique", cost: 250000, multiplier: 5, icon: "🌐", desc: "Clics x5 plus efficaces." },
     // UNLOCK SKILL 2
-    { id: 'res_skill_2', name: "Le 'Nettoyeur'", cost: 500000, multiplier: 1, icon: "⚡", desc: "Débloque: Incendie 'Accidentel'.", unlocksSkill: 'fire' },
-    { id: 'res_3', name: "Algorithme de 'Lavage'", cost: 1500000, multiplier: 10, icon: "🧼", desc: "Clics x10 plus efficaces." },
+    { id: 'res_skill_2', name: "Le 'Nettoyeur'", cost: 1000000, multiplier: 1, icon: "⚡", desc: "Débloque: Incendie 'Accidentel'.", unlocksSkill: 'fire' },
+    { id: 'res_3', name: "Algorithme de 'Lavage'", cost: 5000000, multiplier: 10, icon: "🧼", desc: "Clics x10 plus efficaces." },
     // UNLOCK SKILL 3
-    { id: 'res_skill_3', name: "Plan 'Sacrifice'", cost: 10000000, multiplier: 1, icon: "⚡", desc: "Débloque: Bouc Émissaire.", unlocksSkill: 'scapegoat' },
-    { id: 'res_4', name: "IA de Corruption", cost: 25000000, multiplier: 20, icon: "🤖", desc: "Clics x20 plus efficaces." }
+    { id: 'res_skill_3', name: "Plan 'Sacrifice'", cost: 25000000, multiplier: 1, icon: "⚡", desc: "Débloque: Bouc Émissaire.", unlocksSkill: 'scapegoat' },
+    { id: 'res_4', name: "IA de Corruption", cost: 100000000, multiplier: 20, icon: "🤖", desc: "Clics x20 plus efficaces." }
 ];
 
 const RANDOM_EVENTS = [
@@ -53,17 +53,61 @@ const ACHIEVEMENTS_DATA = [
 ];
 
 const BLACK_MARKET_DATA = [
-    { id: 'lobbying', name: "Lobbying Intensif", desc: "Réduit le risque de base de 10%.", cost: 5, icon: "🤝", max: 5 },
-    { id: 'offshore_account', name: "Compte Numéroté", desc: "Conservez 10% de votre cash après reset.", cost: 10, icon: "💼", max: 5 },
-    { id: 'nepotism', name: "Népotisme", desc: "Conservez vos avocats après reset.", cost: 15, icon: "👨‍⚖️", max: 1 },
-    { id: 'botnet', name: "Botnet Russe", desc: "Auto-clic 5 fois par seconde.", cost: 25, icon: "🤖", max: 1 },
-    { id: 'insider', name: "Délit d'Initié", desc: "Débloque le Marché Boursier plus tôt.", cost: 50, icon: "📈", max: 1 }
+    // DEFENSE
+    { id: 'lobbying', category: 'defense', name: "Lobbying Intensif", desc: "Réduit le risque de base de 10%.", cost: 5, icon: "🤝", max: 5 },
+    { id: 'nepotism', category: 'defense', name: "Népotisme", desc: "Conservez vos avocats après reset.", cost: 15, icon: "👨‍⚖️", max: 1 },
+    { id: 'lawyer_friend', category: 'defense', name: "Ami du Juge", desc: "Les avocats sont 10% moins chers.", cost: 10, icon: "⚖️", max: 5 },
+
+    // INCOME
+    { id: 'offshore_account', category: 'income', name: "Compte Numéroté", desc: "Conservez 10% de votre cash après reset.", cost: 10, icon: "💼", max: 5 },
+    { id: 'tax_haven', category: 'income', name: "Paradis Fiscal", desc: "+10% de revenus passifs.", cost: 8, icon: "🏝️", max: 10 },
+    { id: 'shell_corp', category: 'income', name: "Sociétés Écrans", desc: "Les bâtiments coûtent 5% moins cher.", cost: 12, icon: "🏢", max: 5 },
+
+    // UTILITY
+    { id: 'botnet', category: 'utility', name: "Botnet Russe", desc: "Auto-clic 5 fois par seconde.", cost: 25, icon: "🤖", max: 1 },
+    { id: 'marketing', category: 'utility', name: "Propagande", desc: "Influence gagnée +10% lors du Prestige.", cost: 20, icon: "📢", max: 5 }
 ];
 
-const STOCKS_DATA = [
-    { symbol: "OFFS", name: "Offshore Holdings", basePrice: 10, volatility: 0.02, desc: "Stable, comme un compte en Suisse." },
-    { symbol: "LAUND", name: "Clean Cash Corp", basePrice: 50, volatility: 0.05, desc: "Ça monte et ça descend, comme le linge." },
-    { symbol: "TECH", name: "Phantom Tech", basePrice: 100, volatility: 0.10, desc: "La bulle spéculative par excellence." },
-    { symbol: "ARMS", name: "Peacekeeper Int.", basePrice: 500, volatility: 0.15, desc: "Le malheur des uns fait votre bonheur." },
-    { symbol: "CRPT", name: "ScamCoin", basePrice: 1000, volatility: 0.30, desc: "To the moon... ou en prison." }
+const SYNDICATE_DATA = [
+    {
+        id: 'manager_risk',
+        name: "Le Nettoyeur",
+        desc: "Utilise 'Blanchir & Cacher' (Risque > 50%).",
+        baseCost: 50000,
+        icon: "🧹",
+        type: "auto_risk",
+        maxLevel: 10,
+        // Interval in ticks (10 ticks = 1 sec). Level 1 = 5s, Level 10 = 0.5s
+        getInterval: (level) => Math.max(5, 50 - (level * 4.5))
+    },
+    {
+        id: 'manager_lawyer',
+        name: "Le Conseiller",
+        desc: "Engage des avocats.",
+        baseCost: 250000,
+        icon: "👔",
+        type: "auto_lawyer",
+        maxLevel: 5,
+        getInterval: (level) => Math.max(10, 100 - (level * 15))
+    },
+    {
+        id: 'manager_skills',
+        name: "Le Stratège",
+        desc: "Active les compétences (Risque > 80%).",
+        baseCost: 1000000,
+        icon: "🧠",
+        type: "auto_skill",
+        maxLevel: 5,
+        getInterval: (level) => Math.max(10, 60 - (level * 10))
+    },
+    {
+        id: 'manager_bribe',
+        name: "Le Négociateur",
+        desc: "Paye les pots-de-vin (Risque > 90%).",
+        baseCost: 5000000,
+        icon: "💼",
+        type: "auto_bribe",
+        maxLevel: 3,
+        getInterval: (level) => Math.max(10, 100 - (level * 25))
+    }
 ];
