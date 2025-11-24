@@ -482,7 +482,7 @@ function hireManager(managerId) {
         gameState.syndicateTickers[id] = 0;
     }
 }
-}
+
 
 function handleRandomEvents() {
     if (gameState.risk >= 100) return;
