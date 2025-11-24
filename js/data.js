@@ -85,29 +85,16 @@ const SYNDICATE_DATA = [
         name: "Le Conseiller",
         desc: "Engage des avocats.",
         baseCost: 250000,
-        icon: "👔",
-        type: "auto_lawyer",
-        maxLevel: 5,
-        getInterval: (level) => Math.max(10, 100 - (level * 15))
-    },
-    {
-        id: 'manager_skills',
-        name: "Le Stratège",
-        desc: "Active les compétences (Risque > 80%).",
-        baseCost: 1000000,
-        icon: "🧠",
-        type: "auto_skill",
-        maxLevel: 5,
-        getInterval: (level) => Math.max(10, 60 - (level * 10))
-    },
-    {
-        id: 'manager_bribe',
-        name: "Le Négociateur",
-        desc: "Paye les pots-de-vin (Risque > 90%).",
-        baseCost: 5000000,
         icon: "💼",
         type: "auto_bribe",
         maxLevel: 3,
         getInterval: (level) => Math.max(10, 100 - (level * 25))
     }
 ];
+
+const SOVEREIGNTY_CONFIG = {
+    costMoney: 100000000000, // 100 Billion
+    costInfluence: 5000,
+    name: "Projet Souveraineté",
+    desc: "Achetez une île nation. Devenez la loi. Gagnez le jeu."
+};

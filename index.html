@@ -182,6 +182,31 @@
         </div>
     </div>
 
+    <!-- Modal Victory -->
+    <div class="modal-overlay" id="victoryModal">
+        <div class="modal"
+            style="border-color: #ffd700; background: linear-gradient(135deg, #1a1a1d 0%, #2d2d30 100%);">
+            <h2 style="color: #ffd700; font-size: 2.5rem; text-shadow: 0 0 10px #ffd700;">👑 SOUVERAINETÉ 👑</h2>
+            <p style="font-size: 1.2rem; color: #fff;">Vous l'avez fait. Vous avez acheté votre propre pays.</p>
+            <p style="color: #aaa;">L'administration fiscale ne peut plus rien contre vous.</p>
+
+            <div
+                style="margin: 20px 0; padding: 15px; background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; border-radius: 10px;">
+                <h3 style="color: #ffd700; margin-top: 0;">Statistiques Finales</h3>
+                <p>Fortune Cumulée: <span id="vic-fortune" style="color: #4caf50; font-weight: bold;"></span></p>
+                <p>Temps de Jeu: <span id="vic-time" style="color: #fff;"></span></p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="hardReset()" style="background-color: #f44336; border: 1px solid #d32f2f;">Retraite
+                    (Reset Total)</button>
+                <button onclick="prestigeReset()"
+                    style="background-color: #ffd700; color: #000; font-weight: bold;">Nouvelle Identité +
+                    (Prestige)</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/data.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/game.js"></script>

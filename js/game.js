@@ -433,81 +433,55 @@ function hireManager(managerId) {
     if (!manager) return;
 
     let currentLevel = gameState.syndicateManagers[managerId] || 0;
-    if (currentLevel >= manager.maxLevel) return;
+    if (!gameState.syndicateTickers[id]) gameState.syndicateTickers[id] = 0;
 
-    // Cost Calculation: Base * (1.5 ^ Level)
-    let cost = Math.floor(manager.baseCost * Math.pow(1.5, currentLevel));
+    gameState.syndicateTickers[id]++;
 
-    if (gameState.money >= cost) {
-        gameState.money -= cost;
-        gameState.syndicateManagers[managerId] = currentLevel + 1;
+    let interval = manager.getInterval(level);
 
-        showEventToast({ title: "Syndicat", desc: `${manager.name} amélioré (Niv. ${currentLevel + 1}) !`, type: "tech" });
-        updateUI();
-        saveGame();
-    }
-}
+    if (gameState.syndicateTickers[id] >= interval) {
+        // Trigger Action
+        let actionSuccess = false;
 
-function runSyndicateLogic() {
-    if (gameState.isGameOver) return;
+        if (manager.type === 'auto_risk') {
+            if (gameState.risk > 50) {
+                clickShredder({ clientX: 0, clientY: 0 }, true);
+                actionSuccess = true;
+            }
+        } else if (manager.type === 'auto_lawyer') {
+            let discount = 0;
+            let friendLevel = gameState.blackMarketUpgrades['lawyer_friend'] || 0;
+            if (friendLevel > 0) discount = friendLevel * 0.10;
+            let finalCost = gameState.lawyerCost * (1 - discount);
 
-    for (let id in gameState.syndicateManagers) {
-        let level = gameState.syndicateManagers[id];
-        if (level <= 0) continue;
-
-        let manager = SYNDICATE_DATA.find(m => m.id === id);
-        if (!manager) continue;
-
-        // Init ticker if needed
-        if (!gameState.syndicateTickers[id]) gameState.syndicateTickers[id] = 0;
-
-        gameState.syndicateTickers[id]++;
-
-        let interval = manager.getInterval(level);
-
-        if (gameState.syndicateTickers[id] >= interval) {
-            // Trigger Action
-            let actionSuccess = false;
-
-            if (manager.type === 'auto_risk') {
-                if (gameState.risk > 50) {
-                    clickShredder({ clientX: 0, clientY: 0 }, true);
-                    actionSuccess = true;
-                }
-            } else if (manager.type === 'auto_lawyer') {
-                let discount = 0;
-                let friendLevel = gameState.blackMarketUpgrades['lawyer_friend'] || 0;
-                if (friendLevel > 0) discount = friendLevel * 0.10;
-                let finalCost = gameState.lawyerCost * (1 - discount);
-
-                if (gameState.money >= finalCost) {
-                    buyLawyer();
-                    actionSuccess = true;
-                }
-            } else if (manager.type === 'auto_skill') {
-                if (gameState.risk > 80) {
-                    for (let key in SKILLS_DATA) {
-                        if (SKILLS_DATA[key].unlocked && gameState.skillCooldowns[key] <= 0) {
-                            useSkill(key);
-                            actionSuccess = true;
-                            break;
-                        }
-                    }
-                }
-            } else if (manager.type === 'auto_bribe') {
-                if (gameState.risk > 90) {
-                    let cost = calculateBribeCost();
-                    if (gameState.money >= cost) {
-                        payBribe();
+            if (gameState.money >= finalCost) {
+                buyLawyer();
+                actionSuccess = true;
+            }
+        } else if (manager.type === 'auto_skill') {
+            if (gameState.risk > 80) {
+                for (let key in SKILLS_DATA) {
+                    if (SKILLS_DATA[key].unlocked && gameState.skillCooldowns[key] <= 0) {
+                        useSkill(key);
                         actionSuccess = true;
+                        break;
                     }
                 }
             }
-
-            // Reset ticker only if action attempted (or always? Let's say always to keep rhythm)
-            gameState.syndicateTickers[id] = 0;
+        } else if (manager.type === 'auto_bribe') {
+            if (gameState.risk > 90) {
+                let cost = calculateBribeCost();
+                if (gameState.money >= cost) {
+                    payBribe();
+                    actionSuccess = true;
+                }
+            }
         }
+
+        // Reset ticker only if action attempted (or always? Let's say always to keep rhythm)
+        gameState.syndicateTickers[id] = 0;
     }
+}
 }
 
 function handleRandomEvents() {
@@ -634,6 +608,14 @@ function buyBlackMarketUpgrade(id) {
         openBlackMarket();
         updateUI();
         saveGame();
+    }
+}
+
+function buySovereignty() {
+    if (gameState.money >= SOVEREIGNTY_CONFIG.costMoney && gameState.prestige.currency >= SOVEREIGNTY_CONFIG.costInfluence) {
+        gameState.money -= SOVEREIGNTY_CONFIG.costMoney;
+        gameState.prestige.currency -= SOVEREIGNTY_CONFIG.costInfluence;
+        showVictoryModal();
     }
 }
 

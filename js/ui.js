@@ -415,8 +415,78 @@ function openBlackMarket() {
         columnsContainer.appendChild(col);
     }
 
+    // SOVEREIGNTY SECTION
+    let sovContainer = document.createElement('div');
+    sovContainer.className = 'sovereignty-container';
+
+    let canAffordSov = gameState.money >= SOVEREIGNTY_CONFIG.costMoney && gameState.prestige.currency >= SOVEREIGNTY_CONFIG.costInfluence;
+
+    sovContainer.innerHTML = `
+        <div class="sov-header">👑 ${SOVEREIGNTY_CONFIG.name} 👑</div>
+        <div class="sov-desc">${SOVEREIGNTY_CONFIG.desc}</div>
+        <div class="sov-cost">
+            <span class="${gameState.money >= SOVEREIGNTY_CONFIG.costMoney ? 'ok' : 'no'}">${formatMoney(SOVEREIGNTY_CONFIG.costMoney)} $</span> + 
+            <span class="${gameState.prestige.currency >= SOVEREIGNTY_CONFIG.costInfluence ? 'ok' : 'no'}">${SOVEREIGNTY_CONFIG.costInfluence} Influence</span>
+        </div>
+        <button class="sov-btn ${canAffordSov ? '' : 'disabled'}" onclick="buySovereignty()">ACHETER LE PAYS</button>
+    `;
+
     list.appendChild(columnsContainer);
+    list.appendChild(sovContainer); // Add at bottom
+
     document.getElementById('blackMarketModal').style.display = 'flex';
+}
+
+function showVictoryModal() {
+    document.getElementById('blackMarketModal').style.display = 'none';
+    document.getElementById('victoryModal').style.display = 'flex';
+
+    document.getElementById('vic-fortune').innerText = formatMoney(gameState.lifetimeEarnings) + " $";
+
+    // Calculate time played (approximate based on ticks if we tracked them, or just "A long time")
+    // For now, let's just say "Beaucoup trop longtemps" or implement a real timer later.
+    // We'll use a placeholder.
+    document.getElementById('vic-time').innerText = "Une éternité";
+}
+
+function hardReset() {
+    if (confirm("Êtes-vous sûr de vouloir prendre votre retraite ? Tout sera effacé.")) {
+        localStorage.removeItem('fiscalPhantomSave');
+        location.reload();
+    }
+}
+
+function prestigeReset() {
+    // New Game+ Logic: Keep Prestige, Reset everything else but with a bonus?
+    // Actually, the plan said "Keep Influence + Multiplier".
+    // We can reuse prestigeGame logic but force it without threshold check?
+    // Or just a cleaner reset.
+
+    if (confirm("Commencer une Nouvelle Vie + ?\nVous gardez votre Influence et vos Multiplicateurs.")) {
+        // Reset Game but keep Prestige
+        let savedPrestige = gameState.prestige;
+
+        gameState.money = 15;
+        gameState.risk = 0;
+        gameState.buildings.forEach(b => b.count = 0);
+        gameState.researchesOwned = [];
+        gameState.researchUnlocked = false;
+        gameState.clickPower = 1;
+        gameState.strikes = 0;
+        gameState.syndicateManagers = {};
+        gameState.defense = 1.0;
+        gameState.lawyerLevel = 0;
+        gameState.lawyerCost = 500;
+        gameState.skillCooldowns = { disinfo: 0, fire: 0, scapegoat: 0 };
+        gameState.blackMarketUpgrades = {}; // Reset BM upgrades for fresh start? Or keep them? 
+        // Usually NG+ keeps permanent upgrades. Let's keep BM upgrades for NG+ to make it faster.
+        // But the plan said "Keep Influence". Let's keep Influence AND BM upgrades.
+
+        gameState.lifetimeEarnings = 0;
+
+        saveGame();
+        location.reload();
+    }
 }
 
 function closeBlackMarket() {
