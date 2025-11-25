@@ -161,13 +161,9 @@ function updateUI() {
         prestigeBtn.style.display = 'none';
     }
 
-    // Black Market Button Visibility
+    // Black Market Button Visibility - REMOVED (Now in Menu)
     let bmBtn = document.getElementById('blackMarketBtn');
-    if (gameState.prestige.currency > 0 || Object.keys(gameState.blackMarketUpgrades).length > 0) {
-        bmBtn.style.display = 'block';
-    } else {
-        bmBtn.style.display = 'none';
-    }
+    if (bmBtn) bmBtn.style.display = 'none';
 
     // Research List
     if (gameState.researchUnlocked) {
@@ -371,14 +367,82 @@ function closeAchievements() {
     document.getElementById('achievementsModal').style.display = 'none';
 }
 
-function openBlackMarket() {
-    let list = document.getElementById('blackMarketList');
-    list.innerHTML = "";
-    document.getElementById('bm-influence').innerText = gameState.prestige.currency;
+// --- MAIN MENU FUNCTIONS ---
 
-    // Container for columns
-    let columnsContainer = document.createElement('div');
-    columnsContainer.className = 'bm-columns-container';
+function showMainMenu() {
+    // Hide Game View
+    document.getElementById('game-view').style.display = 'none';
+    document.getElementById('main-menu-view').style.display = 'flex';
+
+    renderWorldMap();
+    renderBlackMarketInMenu();
+    updateMenuStats();
+}
+
+function updateMenuStats() {
+    document.getElementById('menu-influence').innerText = gameState.prestige.currency;
+    document.getElementById('menu-lifetime').innerText = formatMoney(gameState.lifetimeEarnings) + " $";
+}
+
+function renderWorldMap() {
+    let container = document.getElementById('world-map-container');
+    container.innerHTML = "";
+
+    COUNTRIES_DATA.forEach((country, index) => {
+        let isUnlocked = (index === 0) || (gameState.lifetimeEarnings >= country.req); // Simplified unlock logic
+        // Or better: check if previous country was completed? 
+        // For now, let's say you can travel to any unlocked country.
+        // But wait, `gameState.currentCountryIndex` tracks where we are.
+        // Maybe we only unlock the NEXT one?
+        // Let's stick to: You can replay previous levels, and unlock next if requirements met.
+
+        // Actually, the requirement `req` is usually "Money needed to travel TO this country".
+        // So if you have enough lifetime earnings, you can go there?
+        // Let's assume sequential unlocking for now.
+        // If index <= gameState.highestCountryIndex? We don't track highest.
+        // Let's use the `req` check against `lifetimeEarnings` of the *current* run? No, that's for "Travel".
+        // In the menu, we are "between runs".
+        // Let's assume all countries up to `currentCountryIndex + 1` are visible/unlocked?
+        // But `currentCountryIndex` is reset on travel? No, it's persistent.
+
+        // Let's simplify: You can start a run in any country you have reached.
+        // But we need to track "Max Country Reached".
+        // Let's add `maxCountryReached` to gameState in game.js later if needed.
+        // For now, let's assume you can only play the current country or previous ones?
+        // Or just the current one?
+        // The prompt said "Choose their next country".
+        // Let's assume you can select any country up to `currentCountryIndex`.
+
+        let isLocked = index > gameState.currentCountryIndex;
+        let isCurrent = index === gameState.currentCountryIndex;
+
+        let card = document.createElement('div');
+        card.className = `country-card ${isLocked ? 'locked' : ''}`;
+        if (!isLocked) {
+            card.onclick = () => startGame(index);
+        }
+
+        let badge = isCurrent ? `<div class="current-badge">ACTUEL</div>` : "";
+
+        card.innerHTML = `
+            ${badge}
+            <div class="country-flag">${country.flag}</div>
+            <div class="country-name">${country.name}</div>
+            <div class="country-stats">
+                Revenus x${country.incomeMult} | Risque x${country.riskMult}
+            </div>
+            <div class="country-desc">
+                Coût Bâtiments x${country.costMult}
+            </div>
+            ${isLocked ? `<div class="country-req">Verrouillé</div>` : ""}
+        `;
+        container.appendChild(card);
+    });
+}
+
+function renderBlackMarketInMenu() {
+    let list = document.getElementById('menu-black-market-list');
+    list.innerHTML = "";
 
     // Categorize
     let categories = {
@@ -389,7 +453,8 @@ function openBlackMarket() {
 
     for (let catKey in categories) {
         let col = document.createElement('div');
-        col.className = 'bm-column';
+        col.className = 'bm-column'; // Reuse style
+        col.style.marginBottom = "15px";
 
         let catHeader = document.createElement('h3');
         catHeader.className = 'bm-col-header';
@@ -401,7 +466,7 @@ function openBlackMarket() {
 
         BLACK_MARKET_DATA.filter(u => u.category === catKey).forEach(upg => {
             let currentLevel = gameState.blackMarketUpgrades[upg.id] || 0;
-            let isMaxed = currentLevel >= upg.max;
+            let isMaxed = upg.max && currentLevel >= upg.max;
             let canAfford = gameState.prestige.currency >= upg.cost;
 
             let item = document.createElement('div');
@@ -414,9 +479,7 @@ function openBlackMarket() {
             };
 
             let costText = isMaxed ? "MAX" : `${upg.cost} Infl.`;
-            // Handle scalable max (like Botnet with max 50)
-            let maxDisplay = upg.max > 10 ? upg.max : upg.max; // Just to be safe
-
+            let maxDisplay = upg.max > 10 ? upg.max : upg.max;
             let progressPct = (currentLevel / maxDisplay) * 100;
 
             item.innerHTML = `
@@ -440,85 +503,12 @@ function openBlackMarket() {
             grid.appendChild(item);
         });
         col.appendChild(grid);
-        columnsContainer.appendChild(col);
+        list.appendChild(col);
     }
 
-    // SOVEREIGNTY SECTION
-    let sovContainer = document.createElement('div');
-    sovContainer.className = 'sovereignty-container';
-
-    let canAffordSov = gameState.money >= SOVEREIGNTY_CONFIG.costMoney && gameState.prestige.currency >= SOVEREIGNTY_CONFIG.costInfluence;
-
-    sovContainer.innerHTML = `
-        <div class="sov-header">👑 ${SOVEREIGNTY_CONFIG.name} 👑</div>
-        <div class="sov-desc">${SOVEREIGNTY_CONFIG.desc}</div>
-        <div class="sov-cost">
-            <span class="${gameState.money >= SOVEREIGNTY_CONFIG.costMoney ? 'ok' : 'no'}">${formatMoney(SOVEREIGNTY_CONFIG.costMoney)} $</span> + 
-            <span class="${gameState.prestige.currency >= SOVEREIGNTY_CONFIG.costInfluence ? 'ok' : 'no'}">${SOVEREIGNTY_CONFIG.costInfluence} Influence</span>
-        </div>
-        <button class="sov-btn ${canAffordSov ? '' : 'disabled'}" onclick="buySovereignty()">ACHETER LE PAYS</button>
-    `;
-
-    list.appendChild(columnsContainer);
-    list.appendChild(sovContainer); // Add at bottom
-
-    document.getElementById('blackMarketModal').style.display = 'flex';
-}
-
-function showVictoryModal() {
-    document.getElementById('blackMarketModal').style.display = 'none';
-    document.getElementById('victoryModal').style.display = 'flex';
-
-    document.getElementById('vic-fortune').innerText = formatMoney(gameState.lifetimeEarnings) + " $";
-
-    // Calculate time played (approximate based on ticks if we tracked them, or just "A long time")
-    // For now, let's just say "Beaucoup trop longtemps" or implement a real timer later.
-    // We'll use a placeholder.
-    document.getElementById('vic-time').innerText = "Une éternité";
-}
-
-function hardReset() {
-    if (confirm("Êtes-vous sûr de vouloir prendre votre retraite ? Tout sera effacé.")) {
-        localStorage.removeItem('fiscalPhantomSave');
-        location.reload();
-    }
-}
-
-function prestigeReset() {
-    // New Game+ Logic: Keep Prestige, Reset everything else but with a bonus?
-    // Actually, the plan said "Keep Influence + Multiplier".
-    // We can reuse prestigeGame logic but force it without threshold check?
-    // Or just a cleaner reset.
-
-    if (confirm("Commencer une Nouvelle Vie + ?\nVous gardez votre Influence et vos Multiplicateurs.")) {
-        // Reset Game but keep Prestige
-        let savedPrestige = gameState.prestige;
-
-        gameState.money = 15;
-        gameState.risk = 0;
-        gameState.buildings.forEach(b => b.count = 0);
-        gameState.researchesOwned = [];
-        gameState.researchUnlocked = false;
-        gameState.clickPower = 1;
-        gameState.strikes = 0;
-        gameState.syndicateManagers = {};
-        gameState.defense = 1.0;
-        gameState.lawyerLevel = 0;
-        gameState.lawyerCost = 500;
-        gameState.skillCooldowns = { disinfo: 0, fire: 0, scapegoat: 0 };
-        gameState.blackMarketUpgrades = {}; // Reset BM upgrades for fresh start? Or keep them? 
-        // Usually NG+ keeps permanent upgrades. Let's keep BM upgrades for NG+ to make it faster.
-        // But the plan said "Keep Influence". Let's keep Influence AND BM upgrades.
-
-        gameState.lifetimeEarnings = 0;
-
-        saveGame();
-        location.reload();
-    }
-}
-
-function closeBlackMarket() {
-    document.getElementById('blackMarketModal').style.display = 'none';
+    // Sovereignty Button in Menu?
+    // Maybe add it at the bottom of the list or separate panel.
+    // For now, let's keep it simple.
 }
 
 function formatTime(seconds) {

@@ -2,58 +2,61 @@ let gameState;
 let gameLoopInterval;
 let autoSaveInterval;
 
-function initGame() {
-    gameState = {
-        money: 15,
-        risk: 0,
-        defense: 1.0,
-        clickPower: 1,
-        strikes: 0,
-        researchUnlocked: false,
-        researchesOwned: [],
-        achievements: [], // Array of IDs
-        blackMarketUpgrades: {}, // { id: level }
-        syndicateManagers: {}, // { id: level } - CHANGED FROM ARRAY TO OBJECT
-        currentCountryIndex: 0, // NEW: Track current country
-
-        lifetimeEarnings: 0,
-        prestige: {
-            currency: 0, // Influence Points
-            multiplier: 0.10 // 10% per point
-        },
-        // Cooldowns actuels des skills (0 = prêt)
-        skillCooldowns: {
-            disinfo: 0,
-            fire: 0,
-            scapegoat: 0
-        },
-        buildings: [
-            { id: 0, name: "Stand de Limonade", baseCost: 4, income: 1, count: 0, icon: "🍋" },
-            { id: 1, name: "Laverie Auto", baseCost: 60, income: 4, count: 0, icon: "🧺" },
-            { id: 2, name: "Restaurant Cash-Only", baseCost: 720, income: 44, count: 0, icon: "🍕" },
-            { id: 3, name: "Société Écran", baseCost: 8640, income: 480, count: 0, icon: "🏢" },
-            { id: 4, name: "Mine de Crypto", baseCost: 103680, income: 5200, count: 0, icon: "💻" },
-            { id: 5, name: "Banque Offshore", baseCost: 1200000, income: 58000, count: 0, icon: "🏦" },
-            { id: 6, name: "Casino", baseCost: 15000000, income: 600000, count: 0, icon: "🎰" },
-            { id: 7, name: "Parti Politique", baseCost: 200000000, income: 8000000, count: 0, icon: "🗳️" },
-            { id: 8, name: "Agence Spatiale", baseCost: 5000000000, income: 150000000, count: 0, icon: "🚀" }
-        ],
-        lawyerCost: 500,
-        lawyerLevel: 0,
-        isGameOver: false,
-        passiveAccumulator: 0,
-        passiveTimer: 0,
-        syndicateTickers: {} // { id: currentTick }
-    };
-
-    // Reset Skill Unlocks
-    Object.keys(SKILLS_DATA).forEach(key => SKILLS_DATA[key].unlocked = false);
-
-    // Load Save
+function initApp() {
+    // Load Save just to get persistent data (Influence, Upgrades, etc.)
     loadGame();
+
+    // Show Main Menu
+    showMainMenu();
+}
+
+function startGame(countryIndex) {
+    // Set Country
+    gameState.currentCountryIndex = countryIndex;
+
+    // Reset Run-Specific State
+    gameState.money = 15;
+    gameState.risk = 0;
+    gameState.buildings.forEach(b => b.count = 0);
+    gameState.researchesOwned = [];
+    gameState.researchUnlocked = false;
+    gameState.clickPower = 1;
+    gameState.strikes = 0;
+    gameState.isGameOver = false;
+
+    // Apply Persistent Upgrades
+    // Effect: Nepotism (Keep Lawyer Level)
+    let keepLawyer = (gameState.blackMarketUpgrades['nepotism'] > 0);
+    gameState.lawyerLevel = keepLawyer ? (gameState.lawyerLevel || 0) : 0;
+    gameState.lawyerCost = keepLawyer ? (gameState.lawyerCost || 500) : 500;
+    gameState.defense = keepLawyer ? (gameState.defense || 1.0) : 1.0;
+
+    // Effect: Offshore Account (Keep % Money)
+    let offshoreLevel = gameState.blackMarketUpgrades['offshore_account'] || 0;
+    if (offshoreLevel > 0) {
+        // We need to know previous run money? 
+        // Actually, in this new flow, money is reset on "Travel".
+        // So "Offshore Account" might need to be "Start with extra money" or "Keep % of previous run".
+        // Since we don't track "previous run money" in menu easily, let's change it to:
+        // "Start with +1000$ per level" or similar?
+        // Or we keep it as "Keep %" but we must have saved it before returning to menu.
+        // Let's assume we saved `gameState.bankedMoney` or similar?
+        // For now, let's simplify: It gives starting cash bonus.
+        gameState.money += 15 * (offshoreLevel * 10); // Simple bonus
+    }
+
+    gameState.skillCooldowns = { disinfo: 0, fire: 0, scapegoat: 0 };
+    gameState.lifetimeEarnings = 0; // Reset for this run
+
+    // Switch View
+    document.getElementById('main-menu-view').style.display = 'none';
+    document.getElementById('game-view').style.display = 'block';
 
     // Initialize UI
     initGameUI();
+
+    // Start Loop
+    startGameLoop();
 }
 
 // --- CORE LOOP ---
@@ -540,9 +543,19 @@ function gameOver() {
     localStorage.removeItem('fiscalPhantomSave');
 }
 
-function restartGame() {
+function returnToMenu() {
     document.getElementById('gameOverModal').style.display = 'none';
-    initGame();
+    document.getElementById('victoryModal').style.display = 'none';
+
+    // Stop Loop
+    if (gameLoopInterval) clearInterval(gameLoopInterval);
+    if (autoSaveInterval) clearInterval(autoSaveInterval);
+
+    // Show Menu
+    document.getElementById('game-view').style.display = 'none';
+    document.getElementById('main-menu-view').style.display = 'flex';
+
+    showMainMenu();
 }
 
 function travelToNextCountry() {
@@ -613,17 +626,12 @@ function travelToNextCountry() {
         gameState.defense = savedDefense;
         gameState.lawyerLevel = savedLawyerLevel;
         gameState.lawyerCost = savedLawyerCost;
-
         gameState.skillCooldowns = { disinfo: 0, fire: 0, scapegoat: 0 };
         gameState.lifetimeEarnings = 0; // Reset for new country run
 
         saveGame();
-        initGameUI(); // Full UI Reset
-        showEventToast({
-            title: `Bienvenue au ${nextCountry.name}`,
-            desc: "Nouvelle juridiction, nouvelles opportunités.",
-            type: "good"
-        });
+        returnToMenu();
+        alert(`Exil Réussi ! Vous avez gagné ${pointsToGain} Influence.`);
     }
 }
 
@@ -639,10 +647,9 @@ function buyBlackMarketUpgrade(id) {
         gameState.prestige.currency -= upgrade.cost;
         gameState.blackMarketUpgrades[id] = currentLevel + 1;
 
-        showEventToast({ title: "Marché Noir", desc: `Acheté: ${upgrade.name}`, type: "tech" });
-
-        openBlackMarket();
-        updateUI();
+        // Update Menu UI directly
+        renderBlackMarketInMenu();
+        updateMenuStats();
         saveGame();
     }
 }
@@ -657,7 +664,7 @@ function buySovereignty() {
 
 // INIT
 window.onload = function () {
-    initGame();
-    startGameLoop();
+    initApp();
+    // startGameLoop is called in startGame()
     document.getElementById('shredderBtn').addEventListener('mousedown', clickShredder);
 };

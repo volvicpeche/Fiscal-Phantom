@@ -5,133 +5,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiscal Phantom: The Offshore Tycoon</title>
-    <meta name="description" content="Un jeu incremental satirique sur l'évasion fiscale et la gestion de crise.">
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <!DOCTYPE html>
+    <html lang="fr">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fiscal Phantom: The Offshore Tycoon</title>
+        <meta name="description" content="Un jeu incremental satirique sur l'évasion fiscale et la gestion de crise.">
+        <link rel="stylesheet" href="css/style.css">
+    </head>
 
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="top-stats">
-            <div>
-                <div class="money-display" id="totalMoney">0 $</div>
-                <div class="cps-display"><span id="incomePerSec">0</span> $/sec</div>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 0.8rem; color: #aaa;">Défense Légale: <span id="defenseLevel">1</span>x</div>
-                <div class="strikes-display">Casier Judiciaire: <span id="strikeCount">0</span>/5</div>
-                <div style="font-size: 0.8rem; color: var(--tech-color);">Puissance Clic: <span
-                        id="clickPowerDisplay">1</span>x</div>
-                <div style="font-size: 0.8rem; cursor: pointer; margin-top: 5px; color: var(--accent);"
-                    onclick="openAchievements()">🏆 Trophées</div>
-                <div id="blackMarketBtn"
-                    style="font-size: 0.8rem; cursor: pointer; margin-top: 5px; color: #9c27b0; display: none;"
-                    onclick="openBlackMarket()">🕶️ Marché Noir</div>
-            </div>
+    <!-- MAIN MENU VIEW -->
+    <div id="main-menu-view">
+        <div class="menu-header">
+            <h1>Fiscal Phantom</h1>
+            <p class="subtitle">World Tour Edition</p>
         </div>
 
-        <!-- Risk Bar -->
-        <div class="risk-container">
-            <div class="risk-bar" id="riskBar"></div>
-            <div class="risk-text">RISQUE FISCAL: <span id="riskValue">0</span>%</div>
-        </div>
-    </header>
+        <div class="menu-content">
+            <!-- Left Column: World Map -->
+            <div class="menu-column map-column">
+                <h2>🌍 Carte du Monde</h2>
+                <div id="world-map-container">
+                    <!-- Country Cards Generated Here -->
+                </div>
+            </div>
 
-    <!-- News Ticker -->
-    <div class="news-ticker">
-        <div class="news-content" id="newsTickerText">Bienvenue dans le monde de la finance "créative"... Attention aux
-            inspecteurs...</div>
+            <!-- Right Column: Black Market & Stats -->
+            <div class="menu-column bm-column">
+                <div class="menu-stats-panel">
+                    <h3>Votre Empire</h3>
+                    <div class="stat-row">Influence: <span id="menu-influence" class="val">0</span></div>
+                    <div class="stat-row">Fortune Cumulée: <span id="menu-lifetime" class="val">0 $</span></div>
+                </div>
+
+                <h2>🕶️ Marché Noir</h2>
+                <div id="menu-black-market-list">
+                    <!-- Black Market Items Generated Here -->
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Game Area -->
-    <div class="game-container">
-
-        <!-- Zone Active (Gauche) -->
-        <div class="clicker-zone">
-            <div class="audit-alert" id="auditAlert">⚠️ AUDIT IMMINENT ⚠️</div>
-
-            <button class="shredder-btn" id="shredderBtn">
-                <div class="shredder-icon">📄🗑️</div>
-                <div class="shredder-label">Blanchir & Cacher</div>
-                <div class="shredder-stats" id="shredderStats">-1% Risque</div>
-            </button>
-
-            <!-- Container des Skills Actifs -->
-            <div class="skills-container" id="activeSkillsContainer">
-                <!-- Les boutons de skills apparaîtront ici quand débloqués -->
+    <!-- GAME VIEW -->
+    <div id="game-view" style="display: none;">
+        <!-- Header -->
+        <header>
+            <div class="top-stats">
+                <div>
+                    <div class="money-display" id="totalMoney">0 $</div>
+                    <div class="cps-display"><span id="incomePerSec">0</span> $/sec</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: #aaa;">Défense Légale: <span id="defenseLevel">1</span>x</div>
+                    <div class="strikes-display">Casier Judiciaire: <span id="strikeCount">0</span>/5</div>
+                    <div style="font-size: 0.8rem; color: var(--tech-color);">Puissance Clic: <span
+                            id="clickPowerDisplay">1</span>x</div>
+                    <div style="font-size: 0.8rem; cursor: pointer; margin-top: 5px; color: var(--accent);"
+                        onclick="openAchievements()">🏆 Trophées</div>
+                    <!-- Black Market Button Removed (Now in Menu) -->
+                </div>
             </div>
 
-            <!-- Event Toast Notification -->
-            <div class="event-toast" id="eventToast">
-                <h4 id="eventTitle">Titre Event</h4>
-                <p id="eventDesc">Description de l'event.</p>
+            <!-- Risk Bar -->
+            <div class="risk-container">
+                <div class="risk-bar" id="riskBar"></div>
+                <div class="risk-text">RISQUE FISCAL: <span id="riskValue">0</span>%</div>
             </div>
+        </header>
+
+        <!-- News Ticker -->
+        <div class="news-ticker">
+            <div class="news-content" id="newsTickerText">Bienvenue dans le monde de la finance "créative"... Attention
+                aux
+                inspecteurs...</div>
         </div>
 
-        <!-- Zone Shop (Droite) -->
-        <div class="shop-zone">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('buildings')">Business</button>
-                <button class="tab-btn" onclick="switchTab('upgrades')">Défense</button>
-                <button id="research-tab-btn" class="tab-btn" onclick="switchTab('research')">🧬 R&D</button>
-                <button id="syndicate-tab-btn" class="tab-btn" onclick="switchTab('syndicate')"
-                    style="display: none;">🕴️ Syndicat</button>
+        <!-- Game Area -->
+        <div class="game-container">
+
+            <!-- Zone Active (Gauche) -->
+            <div class="clicker-zone">
+                <div class="audit-alert" id="auditAlert">⚠️ AUDIT IMMINENT ⚠️</div>
+
+                <button class="shredder-btn" id="shredderBtn">
+                    <div class="shredder-icon">📄🗑️</div>
+                    <div class="shredder-label">Blanchir & Cacher</div>
+                    <div class="shredder-stats" id="shredderStats">-1% Risque</div>
+                </button>
+
+                <!-- Container des Skills Actifs -->
+                <div class="skills-container" id="activeSkillsContainer">
+                    <!-- Les boutons de skills apparaîtront ici quand débloqués -->
+                </div>
+
+                <!-- Event Toast Notification -->
+                <div class="event-toast" id="eventToast">
+                    <h4 id="eventTitle">Titre Event</h4>
+                    <p id="eventDesc">Description de l'event.</p>
+                </div>
             </div>
 
-            <!-- Liste des Business -->
-            <div id="buildings-tab" class="shop-content">
-                <!-- Les items seront générés par JS -->
-            </div>
+            <!-- Zone Shop (Droite) -->
+            <div class="shop-zone">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('buildings')">Business</button>
+                    <button class="tab-btn" onclick="switchTab('upgrades')">Défense</button>
+                    <button id="research-tab-btn" class="tab-btn" onclick="switchTab('research')">🧬 R&D</button>
+                    <button id="syndicate-tab-btn" class="tab-btn" onclick="switchTab('syndicate')"
+                        style="display: none;">🕴️ Syndicat</button>
+                </div>
 
-            <!-- Liste des Upgrades (Avocats & Pots de vin) -->
-            <div id="upgrades-tab" class="shop-content" style="display: none;">
-                <!-- Avocats -->
-                <div class="shop-item" id="lawyer-upgrade" onclick="buyLawyer()">
-                    <div class="item-info">
-                        <h4>Avocat Véreux</h4>
-                        <div class="item-cost" id="lawyer-cost">500 $</div>
-                        <div class="item-stats">Ralentit la jauge de risque (Actuel: /<span id="lawyer-stat">1</span>)
+                <!-- Liste des Business -->
+                <div id="buildings-tab" class="shop-content">
+                    <!-- Les items seront générés par JS -->
+                </div>
+
+                <!-- Liste des Upgrades (Avocats & Pots de vin) -->
+                <div id="upgrades-tab" class="shop-content" style="display: none;">
+                    <!-- Avocats -->
+                    <div class="shop-item" id="lawyer-upgrade" onclick="buyLawyer()">
+                        <div class="item-info">
+                            <h4>Avocat Véreux</h4>
+                            <div class="item-cost" id="lawyer-cost">500 $</div>
+                            <div class="item-stats">Ralentit la jauge de risque (Actuel: /<span
+                                    id="lawyer-stat">1</span>)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pot-de-vin d'urgence -->
+                    <div class="shop-item bribe-item" id="bribe-action" onclick="payBribe()">
+                        <div class="item-info">
+                            <h4>🤝 Pot-de-vin Express</h4>
+                            <div class="item-cost" id="bribe-cost">??? $</div>
+                            <div class="item-stats">Réduit instantanément le risque de <strong>15%</strong>.</div>
+                            <div style="font-size: 0.7rem; color: #888; font-style: italic;">"J'ai cru voir un billet
+                                tomber..."</div>
+                        </div>
+                    </div>
+
+                    <!-- Prestige -->
+                    <div class="shop-item" id="prestige-upgrade" onclick="travelToNextCountry()"
+                        style="display: none; border-color: var(--accent); background: #222;">
+                        <div class="item-info">
+                            <h4 style="color: var(--accent);">✈️ Exil Fiscal</h4>
+                            <div class="item-stats">Fuyez avec votre fortune. Retour au Menu.</div>
+                            <div class="item-stats" id="prestige-gain">Gain: 0 Influence</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pot-de-vin d'urgence -->
-                <div class="shop-item bribe-item" id="bribe-action" onclick="payBribe()">
-                    <div class="item-info">
-                        <h4>🤝 Pot-de-vin Express</h4>
-                        <div class="item-cost" id="bribe-cost">??? $</div>
-                        <div class="item-stats">Réduit instantanément le risque de <strong>15%</strong>.</div>
-                        <div style="font-size: 0.7rem; color: #888; font-style: italic;">"J'ai cru voir un billet
-                            tomber..."</div>
+                <!-- Onglet Recherche -->
+                <div id="research-tab" class="shop-content" style="display: none;">
+                    <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
+                        Les technologies R&D débloquent des bonus passifs et des <strong>compétences actives</strong>.
                     </div>
+                    <div id="research-list"></div>
                 </div>
 
-                <!-- Prestige -->
-                <div class="shop-item" id="prestige-upgrade" onclick="prestigeGame()"
-                    style="display: none; border-color: var(--accent); background: #222;">
-                    <div class="item-info">
-                        <h4 style="color: var(--accent);">✈️ Exil Fiscal</h4>
-                        <div class="item-stats">Fuyez avec votre fortune. Reset le jeu avec bonus.</div>
-                        <div class="item-stats" id="prestige-gain">Gain: 0 Influence</div>
+                <!-- Onglet Syndicat -->
+                <div id="syndicate-tab" class="shop-content" style="display: none;">
+                    <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
+                        Engagez des professionnels pour automatiser vos affaires sales.
                     </div>
+                    <div id="syndicate-list"></div>
                 </div>
-            </div>
-
-            <!-- Onglet Recherche -->
-            <div id="research-tab" class="shop-content" style="display: none;">
-                <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
-                    Les technologies R&D débloquent des bonus passifs et des <strong>compétences actives</strong>.
-                </div>
-                <div id="research-list"></div>
-            </div>
-
-            <!-- Onglet Syndicat -->
-            <div id="syndicate-tab" class="shop-content" style="display: none;">
-                <div style="padding: 10px; font-size: 0.8rem; color: #888; font-style: italic;">
-                    Engagez des professionnels pour automatiser vos affaires sales.
-                </div>
-                <div id="syndicate-list"></div>
             </div>
         </div>
     </div>
@@ -157,7 +199,7 @@
             <br>
             <p style="font-style: italic; color: #aaa;">"La cupidité est un péché, mais se faire prendre est un crime."
             </p>
-            <button onclick="restartGame()">Recommencer une nouvelle vie</button>
+            <button onclick="returnToMenu()">Retour au Menu Principal</button>
         </div>
     </div>
 
@@ -168,17 +210,6 @@
             <div id="achievementsList"
                 style="max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 20px;"></div>
             <button onclick="closeAchievements()">Fermer</button>
-        </div>
-    </div>
-
-    <!-- Modal Black Market -->
-    <div class="modal-overlay" id="blackMarketModal">
-        <div class="modal" id="blackMarketContent">
-            <h2 style="color: #9c27b0;">🕶️ Marché Noir 🕶️</h2>
-            <p>Dépensez votre Influence pour des avantages permanents.</p>
-            <div style="margin-bottom: 10px; font-weight: bold;">Influence: <span id="bm-influence">0</span></div>
-            <div id="blackMarketList"></div>
-            <button onclick="closeBlackMarket()">Fermer</button>
         </div>
     </div>
 
@@ -200,9 +231,8 @@
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button onclick="hardReset()" style="background-color: #f44336; border: 1px solid #d32f2f;">Retraite
                     (Reset Total)</button>
-                <button onclick="prestigeReset()"
-                    style="background-color: #ffd700; color: #000; font-weight: bold;">Nouvelle Identité +
-                    (Prestige)</button>
+                <button onclick="returnToMenu()"
+                    style="background-color: #ffd700; color: #000; font-weight: bold;">Retour au Menu</button>
             </div>
         </div>
     </div>
